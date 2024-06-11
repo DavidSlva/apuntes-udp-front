@@ -1,7 +1,7 @@
 import MainLayout from '../layouts/MainLayout';
 import Home from '../pages/Home';
 import Usuarios from '../pages/Usuarios';
-
+import Proyectos from '../pages/Proyectos';
 const routes = [
   {
     path: '/',
@@ -12,6 +12,11 @@ const routes = [
     path: '/usuarios',
     layout: MainLayout,
     element: Usuarios,
+  },
+  {
+    path: '/Proyectos',
+    layout: MainLayout,
+    element: Proyectos,
   },
 ];
 
