@@ -1,9 +1,9 @@
-import { HomeOutlined, TeamOutlined } from '@ant-design/icons';
 import { Avatar, Button, Card, Layout, Menu, Space } from 'antd';
 import Sider from 'antd/es/layout/Sider';
 import { Content, Header } from 'antd/es/layout/layout';
 import Title from 'antd/es/typography/Title';
 import React from 'react';
+import MenuSider from './components/MenuSider';
 
 const MainLayout = ({ children }) => {
   return (
@@ -35,16 +35,7 @@ const MainLayout = ({ children }) => {
         defaultCollapsed
         className={`!fixed scroll h-full z-50 mt-16 transition-all duration-300   shadow-md md:translate-x-0 md:transform-none opacity-100`}
       >
-        <Menu
-          items={[
-            {
-              key: '1',
-              icon: <HomeOutlined />,
-              title: 'Home',
-              label: <>Inicio</>,
-            },
-          ]}
-        />
+        <MenuSider />
       </Sider>
       <Layout className="mt-16 md:ml-20 px-2 md:px-5 py-3">
         <Content>{children}</Content>

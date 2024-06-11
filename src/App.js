@@ -1,12 +1,28 @@
+import { HashRouter, Route, Routes } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import Home from './pages/Home';
+import routes from './routes';
 
 function App() {
   return (
-    <div className="App">
-      <MainLayout>
-        <Home />
-      </MainLayout>
+    <div>
+      <HashRouter>
+        {routes ? (
+          <Routes>
+            {routes.map((route, index) => (
+              <Route
+                key={toString(index)}
+                path={route.path}
+                element={
+                  <route.layout>
+                    <route.element />
+                  </route.layout>
+                }
+              />
+            ))}
+          </Routes>
+        ) : null}
+      </HashRouter>
     </div>
   );
 }
