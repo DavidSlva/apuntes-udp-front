@@ -7,7 +7,7 @@ import backgroundImage from '../images/image-1@2x.png'; // Import the image
 
 const { Title } = Typography;
 
-export const Login = ({ className, buttonText = "Iniciar Sesión" }) => {
+export const Login = ({ className, buttonText = "Login" }) => {
   const navigate = useNavigate(); // Initialize useNavigate
 
   const onFinish = (values) => {
@@ -20,7 +20,7 @@ export const Login = ({ className, buttonText = "Iniciar Sesión" }) => {
   };
 
   return (
-    <div className="login-container" style={{...styles.container, backgroundImage: `url(${backgroundImage})`}}>
+    <div className="login-container" style={{...styles.container, backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${backgroundImage})`}}>
       <div className={`login-form ${className}`} style={styles.form}>
         <Title level={2} className="login-title" style={styles.title}>
           ArquiUDP
@@ -30,6 +30,7 @@ export const Login = ({ className, buttonText = "Iniciar Sesión" }) => {
           initialValues={{ remember: true }}
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
+          layout="vertical" // Set form layout to 'vertical'
         >
           <Form.Item
             label="Mail UDP"
@@ -65,12 +66,12 @@ export const Login = ({ className, buttonText = "Iniciar Sesión" }) => {
 
 Login.propTypes = {
   className: PropTypes.string,
-  buttonText: PropTypes.string,
+  buttonText: "Iniciar Sesión",
 };
 
 Login.defaultProps = {
   className: '',
-  buttonText: 'Login',
+  buttonText: 'Iniciar Sesión',
 };
 
 const styles = {
@@ -83,14 +84,15 @@ const styles = {
     backgroundPosition: 'center',
   },
   form: {
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    position: 'relative', // Set position to relative
+    zIndex: 1, // Set z-index to 1 to ensure form appears above overlay
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     padding: '2rem',
     borderRadius: '8px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     width: '300px',
     textAlign: 'center',
     borderColor: '#c23633',
-    
   },
   title: {
     marginBottom: '1rem',
