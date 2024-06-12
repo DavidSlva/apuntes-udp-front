@@ -5,7 +5,7 @@ import project1Image from '../images/test.jpg';
 import project1Image2 from '../images/image-1@2x.png';
 
 const projects = [
-  { id: 1, title: 'Proyecto 1', image: project1Image },
+  { id: 1, title: 'Proyecto 1', image: project1Image, },
   { id: 2, title: 'Proyecto 2', image: project1Image2 },
   { id: 3, title: 'Proyecto 3', image: project1Image },
   { id: 4, title: 'Proyecto 4', image: project1Image2},

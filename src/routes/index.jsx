@@ -1,4 +1,5 @@
 import MainLayout from '../layouts/MainLayout';
+import MainLayoutTop from '../layouts/MainLayoutTop';
 import Home from '../pages/Home';
 import Usuarios from '../pages/Usuarios';
 import Proyectos from '../pages/Proyectos';
@@ -6,6 +7,7 @@ import Miembros from '../pages/Miembros';
 import { Login } from '../pages/Login';
 import Inicio from '../pages/Inicio';
 import Proyecto from '../pages/Proyecto';
+import Referencia from '../pages/Referencia';
 
 const routes = [
   {
@@ -42,6 +44,11 @@ const routes = [
     path: '/inicio',
     layout: MainLayout,
     element: Inicio,
+  },
+  {
+    path: '/referencia',
+    layout: MainLayoutTop,
+    element: Referencia,
   }
 ];
 
