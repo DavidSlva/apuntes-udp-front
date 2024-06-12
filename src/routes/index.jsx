@@ -8,6 +8,7 @@ import { Login } from '../pages/Login';
 import Inicio from '../pages/Inicio';
 import Proyecto from '../pages/Proyecto';
 import Referencia from '../pages/Referencia';
+import Subir from '../pages/Subir';
 
 const routes = [
   {
@@ -49,7 +50,12 @@ const routes = [
     path: '/referencia',
     layout: MainLayoutTop,
     element: Referencia,
-  }
+  },
+  {
+    path: '/Subir',
+    layout: MainLayout,
+    element: Subir,
+  },
 ];
 
 export default routes;
