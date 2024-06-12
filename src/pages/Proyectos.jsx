@@ -1,6 +1,6 @@
 import { Card, Table } from 'antd';
-import { SearchOutlined, FileAddOutlined } from '@ant-design/icons';
-import { Button, Divider, Flex, Radio, Space, Tooltip, Row, Col } from 'antd';
+import { SearchOutlined, FileAddOutlined, FileImageOutlined } from '@ant-design/icons';
+import { Button, Divider, Flex, Radio, Space, Tooltip, Row, Col, Modal, Input } from 'antd';
 import React, { useState } from 'react';
 import project1Image from '../images/image.png';
 
@@ -34,10 +34,25 @@ const projects = [
     { id: 26, title: 'Proyecto 26', image: project1Image },
     { id: 27, title: 'Proyecto 27', image: project1Image },
   ];
-  
+
+    
+
 
   const Proyectos = () => {
+    
     const [position, setPosition] = useState('end');
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const showModal = () => {
+        setIsModalVisible(true);
+    };
+    const handleOk = () => {
+        setIsModalVisible(false);
+    };
+    const handleCancel = () => {
+        setIsModalVisible(false);
+    };
+
     return (
         <div>
             <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
@@ -60,12 +75,52 @@ const projects = [
                 type="primary"
                 icon={<FileAddOutlined />}
                 iconPosition={position}
+                onClick={showModal}
                 style={{ width: '300px' , height: '40px', fontSize: '18px'}} // Ajusta el ancho según sea necesario
                 >
                 Crear un Nuevo Proyecto
                 </Button>
                 </Col>
             </Row>
+            <Modal
+                style={{marginTop: '200px'}}
+                visible={isModalVisible}
+                footer={null}
+                onCancel={handleCancel}
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+
+                <Input 
+                shape="round" 
+                placeholder="Nombre del Proyecto"
+                style={{ marginBottom: '5px', width: '300px' ,borderRadius: '25px', height: '40px'}} 
+                />
+                <Button
+                shape="round"
+                type="primary"
+                icon={<FileImageOutlined />}
+                iconPosition={position}
+                onClick={showModal}
+                
+                style={{ width: '300px' , height: '40px', fontSize: '18px'}} 
+                >
+                Imagen de previsualización
+                </Button>
+                <Button
+                
+                shape="round"
+                type="primary"
+                icon={<FileAddOutlined />}
+                iconPosition={position}
+                onClick={showModal}
+                
+                style={{ width: '250px' , height: '40px', fontSize: '18px', marginTop: '20px'}} 
+                >
+                Crear Proyecto
+                </Button>
+                </div>
+            </Modal>
+
             <Row justify="center" gutter={[16, 16]} style={{ marginTop: '20px' }}>
                 {projects.map(project => (
                     <Col xs={24} sm={12} md={8} lg={6} key={project.id}>
