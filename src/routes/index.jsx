@@ -43,7 +43,6 @@ const routes = [
     layout: MainLayout,
     element: Inicio,
   }
-  },
 ];
 
 export default routes;

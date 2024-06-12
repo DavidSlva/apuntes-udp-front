@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Avatar, Row, Col, Modal, Input, Button } from 'antd';
+import React from 'react';
+import { Avatar, Row, Col } from 'antd';
 import { UserAddOutlined } from '@ant-design/icons';
 
-const UserCard = ({ name, isInvite, onInviteClick }) => (
+const UserCard = ({ name, isInvite }) => (
   <Col style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-    <div style={{ textAlign: 'center', margin: '15px' }} onClick={isInvite ? onInviteClick : null}>
+    <div style={{ textAlign: 'center', margin: '15px' }}>
       {isInvite ? (
-        <Avatar size={400} icon={<UserAddOutlined style={{ fontSize: '100px', color: '#b22222' }} />} style={{ backgroundColor: '#f0f0f0', cursor: 'pointer' }} />
+        <Avatar size={400} icon={<UserAddOutlined style={{ fontSize: '100px', color: '#b22222' }} />} style={{ backgroundColor: '#f0f0f0' }} />
       ) : (
         <Avatar size={400} style={{ backgroundColor: '#d9d9d9' }} />
       )}
@@ -15,46 +15,14 @@ const UserCard = ({ name, isInvite, onInviteClick }) => (
   </Col>
 );
 
-const Miembros = () => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const showModal = () => {
-    setIsModalVisible(true);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleOk = () => {
-    // Logica de la invitacion // agregar la wea de los mails
-    setIsModalVisible(false);
-  };
-
-  return (
-    <div style={{ padding: '50px 20px', backgroundColor: '#fafafa' }}>
-      <Row justify="space-around" align="middle">
-        <UserCard name="Nombre usuario" isInvite={false} />
-        <UserCard name="Nombre usuario" isInvite={false} />
-        <UserCard name="Invitar Usuario" isInvite={true} onInviteClick={showModal} />
-      </Row>
-      <Modal
-        title="Invitar Usuario"
-        visible={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        footer={null}
-      >
-        <Input placeholder="Correo de invitación" style={{ marginBottom: '10px' }} />
-        <Button type="primary" block style={{ marginBottom: '10px' }} onClick={handleOk}>
-          Enviar Invitacion
-        </Button>
-        <Button block>
-          Copiar Link de Invitación
-        </Button>
-      </Modal>
-    </div>
-  );
-};
+const Miembros = () => (
+  <div style={{ padding: '50px 20px', backgroundColor: '#fafafa' }}>
+    <Row justify="space-around" align="middle">
+      <UserCard name="Nombre usuario" isInvite={false} />
+      <UserCard name="Nombre usuario" isInvite={false} />
+      <UserCard name="Invitar Usuario" isInvite={true} />
+    </Row>
+  </div>
+);
 
 export default Miembros;
