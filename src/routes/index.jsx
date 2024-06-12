@@ -1,6 +1,7 @@
 import MainLayout from '../layouts/MainLayout';
 import Home from '../pages/Home';
 import Usuarios from '../pages/Usuarios';
+import Proyectos from '../pages/Proyectos';
 import Miembros from '../pages/Miembros';
 import { Login } from '../pages/Login';
 
@@ -14,6 +15,11 @@ const routes = [
     path: '/usuarios',
     layout: MainLayout,
     element: Usuarios,
+  },
+  {
+    path: '/Proyectos',
+    layout: MainLayout,
+    element: Proyectos,
   },
   {
     path: '/Miembros',
