@@ -33,6 +33,16 @@ const items = [
       </>
     ),
   },
+  {
+    key: '3',
+    icon: <MenuOutlined />,
+    title: 'Proyectos',
+    label: (
+      <>
+        <Link to={'/Subir'}>Proyectos</Link>{' '}
+      </>
+    ),
+  },
 ];
 
 const MenuSider = () => {

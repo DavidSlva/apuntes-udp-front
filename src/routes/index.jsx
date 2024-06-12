@@ -6,6 +6,7 @@ import Miembros from '../pages/Miembros';
 import { Login } from '../pages/Login';
 import Inicio from '../pages/Inicio';
 import Proyecto from '../pages/Proyecto';
+import Subir from '../pages/Subir';
 
 const routes = [
   {
@@ -42,6 +43,11 @@ const routes = [
     path: '/inicio',
     layout: MainLayout,
     element: Inicio,
+  },
+  {
+    path: '/Subir',
+    layout: MainLayout,
+    element: Subir,
   }
 ];
 
