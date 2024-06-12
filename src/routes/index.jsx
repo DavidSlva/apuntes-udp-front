@@ -4,6 +4,7 @@ import Usuarios from '../pages/Usuarios';
 import Proyectos from '../pages/Proyectos';
 import Miembros from '../pages/Miembros';
 import { Login } from '../pages/Login';
+import Proyecto from '../pages/Proyecto';
 
 const routes = [
   {
@@ -20,6 +21,11 @@ const routes = [
     path: '/Proyectos',
     layout: MainLayout,
     element: Proyectos,
+  },
+  {
+    path: '/Proyectos/:id/Proyecto',
+    layout: MainLayout,
+    element: Proyecto,
   },
   {
     path: '/Miembros',
