@@ -1,9 +1,11 @@
 import MainLayout from '../layouts/MainLayout';
 import Home from '../pages/Home';
 import Usuarios from '../pages/Usuarios';
+import Proyectos from '../pages/Proyectos';
+import Miembros from '../pages/Miembros';
 import { Login } from '../pages/Login';
 import Inicio from '../pages/Inicio';
-
+import Proyecto from '../pages/Proyecto';
 
 const routes = [
   {
@@ -17,6 +19,21 @@ const routes = [
     element: Usuarios,
   },
   {
+    path: '/Proyectos',
+    layout: MainLayout,
+    element: Proyectos,
+  },
+  {
+    path: '/Proyectos/:id/Proyecto',
+    layout: MainLayout,
+    element: Proyecto,
+  },
+  {
+    path: '/Miembros',
+    layout: MainLayout,
+    element: Miembros,
+  },
+  {
     path: '/login',
     layout: MainLayout,
     element: Login,
@@ -26,6 +43,7 @@ const routes = [
     layout: MainLayout,
     element: Inicio,
   }
+  },
 ];
 
 export default routes;

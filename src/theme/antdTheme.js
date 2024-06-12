@@ -1,4 +1,4 @@
-import { primaryColor } from './colors';
+import { primaryColor, dangerColor} from './colors';
 
 const { ConfigProvider } = require('antd');
 // import esES from 'antd/es/locale/es_ES';
@@ -10,19 +10,20 @@ const whitTheme = (node) => (
       theme={{
         // algorithm: theme.defaultAlgorithm,
         token: {
-          colorPrimary: primaryColor,
+          colorPrimary: dangerColor,
         },
         components: {
           Layout: {
             headerBg: '#fff',
-            triggerBg: primaryColor,
+            triggerBg: dangerColor,
             siderBg: '#fff',
           },
           Menu: {
-            itemColor: primaryColor,
+            itemColor: dangerColor,
             itemBorderRadius: '0.375rem',
           },
           Button: {
+            dangerColor: dangerColor,
             borderRadius: '0.375rem',
           },
           Input: {
