@@ -38,7 +38,7 @@ const ScrollableContainer = ({ items, renderItem, maxVisibleItems }) => {
 
   return (
     <div
-      className="flex overflow-x-auto space-x-8 mt-4 !overflow-hidden  p-2"
+      className="flex overflow-x-auto space-x-2 !overflow-hidden p-2"
       style={{
         maxWidth: `calc(120px * ${maxVisibleItems})`,
         overflowY: 'hidden',

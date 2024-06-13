@@ -3,12 +3,13 @@ import { SearchOutlined, FileAddOutlined } from '@ant-design/icons';
 import React, { useState, useEffect } from 'react';
 import project1Image from '../images/test.jpg';
 import project1Image2 from '../images/image-1@2x.png';
+import { useNavigate } from 'react-router-dom';
 
 const projects = [
-  { id: 1, title: 'Proyecto 1', image: project1Image, },
+  { id: 1, title: 'Proyecto 1', image: project1Image },
   { id: 2, title: 'Proyecto 2', image: project1Image2 },
   { id: 3, title: 'Proyecto 3', image: project1Image },
-  { id: 4, title: 'Proyecto 4', image: project1Image2},
+  { id: 4, title: 'Proyecto 4', image: project1Image2 },
   { id: 5, title: 'Proyecto 5', image: project1Image },
   { id: 6, title: 'Proyecto 6', image: project1Image2 },
   { id: 7, title: 'Proyecto 7', image: project1Image },
@@ -47,6 +48,8 @@ const Inicio = () => {
     }
   }, [transitioning]);
 
+  const navigate = useNavigate(); // Initialize useNavigate
+
   const handlePageChange = (page) => {
     setTransitioning(true);
     setTimeout(() => {
@@ -59,7 +62,11 @@ const Inicio = () => {
 
   return (
     <div>
-      <Row justify="center" gutter={[16, 16]} style={{ marginTop: '20px', marginBottom: '20px' }}>
+      <Row
+        justify="center"
+        gutter={[16, 16]}
+        style={{ marginTop: '20px', marginBottom: '20px' }}
+      >
         <div
           style={{
             display: 'flex',
@@ -73,13 +80,19 @@ const Inicio = () => {
           {currentProjects.map((project) => (
             <Col xs={24} sm={12} md={8} lg={6} key={project.id}>
               <Card
+                onClick={() => navigate(`/Proyectos/${project.id}/Proyecto`)}
                 hoverable
                 style={{ marginBottom: '30px' }} // Add margin bottom to increase vertical spacing
                 cover={
                   <img
                     alt={project.title}
                     src={project.image}
-                    style={{ backgroundColor: '#f5f5f5', height: '200px', objectFit: 'cover', width: '100%' }}
+                    style={{
+                      backgroundColor: '#f5f5f5',
+                      height: '200px',
+                      objectFit: 'cover',
+                      width: '100%',
+                    }}
                   />
                 }
               >
@@ -89,7 +102,13 @@ const Inicio = () => {
                 <Button disabled shape="round" style={{ marginLeft: '10px' }}>
                   #Infraestructura
                 </Button>
-                <Card.Meta title={<div style={{ fontSize: '120%', marginTop: '10px' }}>{project.title}</div>} />
+                <Card.Meta
+                  title={
+                    <div style={{ fontSize: '120%', marginTop: '10px' }}>
+                      {project.title}
+                    </div>
+                  }
+                />
               </Card>
             </Col>
           ))}

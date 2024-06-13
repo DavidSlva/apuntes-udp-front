@@ -4,15 +4,14 @@ import { Form, Input, Button, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import backgroundImage from '../images/image-1@2x.png'; // Import the image
 
-
 const { Title } = Typography;
 
-export const Login = ({ className, buttonText = "Login" }) => {
+export const Login = ({ className, buttonText = 'Login' }) => {
   const navigate = useNavigate(); // Initialize useNavigate
 
   const onFinish = (values) => {
     console.log('Success:', values);
-    navigate('/'); // Redirect to another page using useNavigate
+    navigate('/inicio'); // Redirect to another page using useNavigate
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -20,7 +19,13 @@ export const Login = ({ className, buttonText = "Login" }) => {
   };
 
   return (
-    <div className="login-container" style={{...styles.container, backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${backgroundImage})`}}>
+    <div
+      className="login-container"
+      style={{
+        ...styles.container,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${backgroundImage})`,
+      }}
+    >
       <div className={`login-form ${className}`} style={styles.form}>
         <Title level={2} className="login-title" style={styles.title}>
           ArquiUDP
@@ -43,7 +48,9 @@ export const Login = ({ className, buttonText = "Login" }) => {
           <Form.Item
             label="Contraseña"
             name="password"
-            rules={[{ required: true, message: 'Porfavor Ingrese su Contraseña' }]}
+            rules={[
+              { required: true, message: 'Porfavor Ingrese su Contraseña' },
+            ]}
           >
             <Input.Password />
           </Form.Item>
@@ -53,7 +60,14 @@ export const Login = ({ className, buttonText = "Login" }) => {
               type="primary"
               htmlType="submit"
               className="login-button"
-              style={{...styles.button, backgroundColor: "white" , borderColor: '#c23633', color: '#c23633', borderWidth: '2px', fontWeight: 'bold'}}
+              style={{
+                ...styles.button,
+                backgroundColor: 'white',
+                borderColor: '#c23633',
+                color: '#c23633',
+                borderWidth: '2px',
+                fontWeight: 'bold',
+              }}
             >
               {buttonText}
             </Button>
@@ -66,7 +80,7 @@ export const Login = ({ className, buttonText = "Login" }) => {
 
 Login.propTypes = {
   className: PropTypes.string,
-  buttonText: "Iniciar Sesión",
+  buttonText: 'Iniciar Sesión',
 };
 
 Login.defaultProps = {
@@ -96,7 +110,7 @@ const styles = {
   },
   title: {
     marginBottom: '1rem',
-    color: '#c23633'
+    color: '#c23633',
   },
   button: {
     width: '100%',

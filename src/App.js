@@ -1,6 +1,4 @@
 import { HashRouter, Route, Routes } from 'react-router-dom';
-import MainLayout from './layouts/MainLayout';
-import Home from './pages/Home';
 import routes from './routes';
 
 function App() {
