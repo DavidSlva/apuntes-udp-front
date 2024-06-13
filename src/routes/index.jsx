@@ -8,6 +8,7 @@ import { Login } from '../pages/Login';
 import Inicio from '../pages/Inicio';
 import Proyecto from '../pages/Proyecto';
 import Subir from '../pages/Subir';
+import EmptyLayout from '../layouts/EmptyLayout';
 
 const routes = [
   {
@@ -37,7 +38,7 @@ const routes = [
   },
   {
     path: '/login',
-    layout: MainLayout,
+    layout: EmptyLayout,
     element: Login,
   },
   {
