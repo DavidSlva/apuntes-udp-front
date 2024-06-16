@@ -19,6 +19,7 @@ export default {
         danger: '#b3002d',
         warning: '#ffcc00',
         success: '#00B377',
+        udp: '#b3c2c6s'
       },
     },
   },
