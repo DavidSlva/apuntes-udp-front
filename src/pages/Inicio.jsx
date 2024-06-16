@@ -1,5 +1,4 @@
 import { Card, Button, Row, Col, Pagination } from 'antd';
-import { SearchOutlined, FileAddOutlined } from '@ant-design/icons';
 import React, { useState, useEffect } from 'react';
 import project1Image from '../images/test.jpg';
 import project1Image2 from '../images/image-1@2x.png';
