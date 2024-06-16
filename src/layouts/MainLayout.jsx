@@ -35,13 +35,13 @@ const MainLayout = ({ children }) => {
           {/* <Logo simple /> */}
         </div>
       </Header>
-      {/* <Sider
+      <Sider
         collapsible
         defaultCollapsed
         className={`!fixed scroll h-full z-50 mt-16 transition-all duration-300   shadow-md md:translate-x-0 md:transform-none opacity-100`}
       >
         <MenuSider />
-      </Sider> */}
+      </Sider>
       <Layout className="mt-16 md:ml-20 px-2 md:px-5 py-3">
         <Content>{children}</Content>
         <Card className="mt-2">
