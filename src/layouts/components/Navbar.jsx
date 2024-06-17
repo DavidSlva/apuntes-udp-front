@@ -74,18 +74,21 @@ const items = [
 
 const Navbar = () => {
   return (
-    <div style={{ width: '100%' }} className="mt-2">
+    <div style={{ width: '100%' }} className="mt-0 md:mt-2">
       <Menu
         mode="horizontal"
         items={items}
         theme="dark"
+        // Agregar borde para esquinas de abajo con tailwindcss
+        className=" rounded-b-md md:rounded-md"
+        // className=" rounded-s-sm md:rounded-md"
         style={{
           display: 'flex',
           justifyContent: 'space-around',
           width: '100%',
           backgroundColor: '#c23633',
           fontSize: '16pt',
-          borderRadius: '0.375rem',
+          // borderRadius: '0.375rem',
         }}
       />
     </div>

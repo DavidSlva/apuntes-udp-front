@@ -17,6 +17,7 @@ const whitTheme = (node) => (
             headerBg: 'transparent',
             triggerBg: dangerColor,
             siderBg: '#fff',
+            headerPadding: '0',
           },
           Menu: {
             itemColor: dangerColor,

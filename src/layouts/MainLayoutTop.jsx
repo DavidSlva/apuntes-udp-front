@@ -7,10 +7,10 @@ const { Header, Content } = Layout;
 const MainLayoutTop = ({ children }) => {
   return (
     <Layout className="min-h-screen">
-      <Header>
+      <Header className="mx-0 md:mx-12">
         <Navbar /> {/* Render your Navbar component in the Header section */}
       </Header>
-      <Content className="mt-10 mx-12">
+      <Content className="mt-10 mx-1 md:mx-12">
         <Card style={{ minHeight: 380, marginBottom: 24 }}>{children}</Card>
       </Content>
     </Layout>
