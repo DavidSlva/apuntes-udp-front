@@ -20,7 +20,7 @@ export const Login = ({ className, buttonText = 'Login' }) => {
 
   return (
     <div
-      className="login-container"
+      className="login-container  h-screen"
       style={{
         ...styles.container,
         backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${backgroundImage})`,
@@ -93,7 +93,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    height: '100vh',
+    // height: '100vh',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
   },

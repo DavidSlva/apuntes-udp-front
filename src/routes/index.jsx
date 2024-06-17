@@ -14,8 +14,8 @@ import EmptyLayout from '../layouts/EmptyLayout';
 const routes = [
   {
     path: '/',
-    layout: MainLayoutTop,
-    element: Home,
+    layout: EmptyLayout,
+    element: Login,
   },
   {
     path: '/usuarios',
