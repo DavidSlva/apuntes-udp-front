@@ -89,9 +89,9 @@ const Proyecto = () => {
       <Modal open={isModalVisible} onCancel={handleModal} width={'80%'}>
         <UploadFile />
       </Modal>
-      <Card className="p-8">
+      <div className="p-8">
         <div className="flex flex-col lg:flex-row justify-around mb-8">
-          <div className="flex flex-col items-center lg:items-start mb-8 lg:mb-0 ">
+          <div className="flex flex-col items-center lg:items-start mb-8 lg:mb-0 w-full lg:w-auto">
             <Title level={3} className="text-center lg:text-left">
               Nombre Proyecto
             </Title>
@@ -99,7 +99,7 @@ const Proyecto = () => {
             <Title level={4} className="mb-2 text-center lg:text-left">
               Imagen Opcional
             </Title>
-            <div className="lg:w-[500px] h-[500px]">
+            <div className="w-full lg:w-[500px] h-[500px]">
               <img
                 src={placeholderProyectImage}
                 alt="Imagen del proyecto"
@@ -112,9 +112,9 @@ const Proyecto = () => {
               />
             </div>
           </div>
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-start w-full lg:w-auto">
             <div className="flex flex-row justify-start text-center mb-2">
-              <Title level={4} className="text-center lg:text-left !m-0">
+              <Title level={4} className="text-center lg:text-left mt-3">
                 Archivos
               </Title>
               <PlusCircleOutlined
@@ -144,12 +144,7 @@ const Proyecto = () => {
             />
           </div>
         </div>
-        <div className="flex flex-col lg:flex-row mb-8 w-full">
-          <div>
-            <div className="flex flex-row justify-start text-center "></div>
-          </div>
-        </div>
-      </Card>
+      </div>
     </>
   );
 };
