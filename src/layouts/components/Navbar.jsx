@@ -1,61 +1,93 @@
-import React, { useState } from 'react';
+import React from 'react';
+import {
+  HomeOutlined,
+  UserOutlined,
+  MenuOutlined,
+  FileAddOutlined,
+  LinkOutlined,
+} from '@ant-design/icons';
 import { Menu } from 'antd';
-import { HomeOutlined, ProjectOutlined, UserOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
 
 const items = [
   {
-    label: 'Inicio',
-    key: 'home',
-    icon: <HomeOutlined />,
+    key: '1',
+    icon: <HomeOutlined style={{ fontSize: '16pt' }} />,
+    title: 'Home',
+    label: (
+      <Link to={'/inicio'} style={{ color: '#FFFFFF' }}>
+        Inicio
+      </Link>
+    ),
   },
   {
-    label: 'Proyectos',
-    key: 'projects',
-    icon: <ProjectOutlined />,
+    key: '3',
+    icon: <MenuOutlined style={{ fontSize: '16pt' }} />,
+    title: 'Proyectos',
+    label: (
+      <Link to={'/Proyectos'} style={{ color: '#FFFFFF' }}>
+        Proyectos
+      </Link>
+    ),
   },
   {
-    label: 'Perfil',
-    key: 'profile',
-    icon: <UserOutlined />,
+    key: '4',
+    icon: <FileAddOutlined style={{ fontSize: '16pt' }} />,
+    title: 'Archivo Ex',
+    label: (
+      <Link to={'/Subir'} style={{ color: '#FFFFFF' }}>
+        Archivo Ex
+      </Link>
+    ),
+  },
+  {
+    key: '5',
+    icon: <FileAddOutlined style={{ fontSize: '16pt' }} />,
+    title: 'Un Proyecto',
+    label: (
+      <Link to={'/Proyectos/1/Proyecto'} style={{ color: '#FFFFFF' }}>
+        Un Proyecto
+      </Link>
+    ),
+  },
+  {
+    key: '6',
+    icon: <LinkOutlined style={{ fontSize: '16pt' }} />,
+    title: 'Referencia',
+    label: (
+      <Link to={'/referencia'} style={{ color: '#FFFFFF' }}>
+        Referencia
+      </Link>
+    ),
+  },
+  {
+    key: '7',
+    icon: <UserOutlined style={{ fontSize: '16pt' }} />,
+    title: 'Miembros',
+    label: (
+      <Link to={'/Miembros'} style={{ color: '#FFFFFF' }}>
+        Miembros
+      </Link>
+    ),
   },
 ];
 
 const Navbar = () => {
-  const [current, setCurrent] = useState('home'); // Default selected key
-
-  const handleClick = (e) => {
-    setCurrent(e.key); // Update selected key on click
-  };
-
   return (
-    <Menu
-      onClick={handleClick}
-      selectedKeys={[current]}
-      mode="horizontal"
-      className="w-full"
-      style={{
-        background: `linear-gradient(to right, #E54441, #E54441)`, // Red gradient background
-        color: 'white', // Text color of the Navbar
-      }}
-    >
-      {items.map((item) => (
-        <Menu.Item
-          key={item.key}
-          icon={item.icon}
-          style={{
-            flex: '1',
-            textAlign: 'center',
-            background:
-              current === item.key
-                ? 'white'
-                : `linear-gradient(to right, #E54441, #E54441)`, // Red gradient for non-selected items
-            color: current === item.key ? '#E54441' : 'white', // Red text color for non-selected items
-          }}
-        >
-          {item.label}
-        </Menu.Item>
-      ))}
-    </Menu>
+    <div style={{ width: '100%' }}>
+      <Menu
+        mode="horizontal"
+        items={items}
+        theme="dark"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          width: '100%',
+          backgroundColor: '#c23633',
+          fontSize: '16pt',
+        }}
+      />
+    </div>
   );
 };
 

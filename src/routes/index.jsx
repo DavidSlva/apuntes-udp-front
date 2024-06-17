@@ -7,34 +7,34 @@ import Miembros from '../pages/Miembros';
 import { Login } from '../pages/Login';
 import Inicio from '../pages/Inicio';
 import Proyecto from '../pages/Proyecto';
-import Referencia from '../pages/Referencia';
 import Subir from '../pages/Subir';
+import Referencia from '../pages/Referencia';
 import EmptyLayout from '../layouts/EmptyLayout';
 
 const routes = [
   {
     path: '/',
-    layout: MainLayout,
+    layout: MainLayoutTop,
     element: Home,
   },
   {
     path: '/usuarios',
-    layout: MainLayout,
+    layout: MainLayoutTop,
     element: Usuarios,
   },
   {
     path: '/Proyectos',
-    layout: MainLayout,
+    layout: MainLayoutTop,
     element: Proyectos,
   },
   {
     path: '/Proyectos/:id/Proyecto',
-    layout: MainLayout,
+    layout: MainLayoutTop,
     element: Proyecto,
   },
   {
     path: '/Miembros',
-    layout: MainLayout,
+    layout: MainLayoutTop,
     element: Miembros,
   },
   {
@@ -44,8 +44,13 @@ const routes = [
   },
   {
     path: '/inicio',
-    layout: MainLayout,
+    layout: MainLayoutTop,
     element: Inicio,
+  },
+  {
+    path: '/Subir',
+    layout: MainLayoutTop,
+    element: Subir,
   },
   {
     path: '/referencia',
