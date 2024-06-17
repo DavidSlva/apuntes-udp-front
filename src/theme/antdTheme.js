@@ -1,4 +1,4 @@
-import { primaryColor, dangerColor} from './colors';
+import { primaryColor, dangerColor } from './colors';
 
 const { ConfigProvider } = require('antd');
 // import esES from 'antd/es/locale/es_ES';
@@ -14,7 +14,7 @@ const whitTheme = (node) => (
         },
         components: {
           Layout: {
-            headerBg: '#fff',
+            headerBg: 'transparent',
             triggerBg: dangerColor,
             siderBg: '#fff',
           },

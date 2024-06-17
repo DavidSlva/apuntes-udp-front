@@ -74,7 +74,7 @@ const items = [
 
 const Navbar = () => {
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: '100%' }} className="mt-2">
       <Menu
         mode="horizontal"
         items={items}
@@ -85,6 +85,7 @@ const Navbar = () => {
           width: '100%',
           backgroundColor: '#c23633',
           fontSize: '16pt',
+          borderRadius: '0.375rem',
         }}
       />
     </div>
