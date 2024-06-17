@@ -5,8 +5,20 @@ import { PlusCircleOutlined } from '@ant-design/icons';
 import UploadFile from '../components/UploadFile';
 const { Title } = Typography;
 
+const placeholderUserImage =
+  'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+const placeholderFileImage =
+  'https://www.iconpacks.net/icons/2/free-file-icon-1453-thumb.png';
+const placeholderProyectImage =
+  'https://static.dezeen.com/uploads/2022/07/sq-university-of-oregon-schoolshows_dezeen_2364_col_0.jpg';
+
 const Proyecto = () => {
-  const archivos = ['Archivo 1', 'Archivo 2', 'Archivo 3', 'Archivo 4'];
+  const archivos = [
+    { name: 'Archivo 1', fileSize: '2 MB' },
+    { name: 'Archivo 2', fileSize: '1.5 MB' },
+    { name: 'Archivo 3', fileSize: '3.2 MB' },
+    { name: 'Archivo 4', fileSize: '700 KB' },
+  ];
   const miembros = ['Miembro 1', 'Miembro 2', 'Miembro 3', 'Miembro 4'];
   const referentes = [
     'Referente 1',
@@ -14,35 +26,40 @@ const Proyecto = () => {
     'Referente 3',
     'Referente 4',
   ];
-  const tags = [
-    'Tag 1',
-    'Tag 2',
-    'Tag 3',
-    'Tag 4',
-    'Tag 5',
-    'Tag 2',
-    'Tag 3',
-    'Tag 4',
-    'Tag 5',
-    'Tag 2',
-    'Tag 3',
-    'Tag 4',
-    'Tag 5',
-  ];
-  const imageUrl = null;
+  const tags = ['Tag 1', 'Tag 2', 'Tag 3', 'Tag 4', 'Tag 5', 'Tag 2'];
 
   const renderArchivo = (archivo, index) => (
-    <Card
+    <div
       key={index}
-      className="min-w-[120px] min-h-[120px] flex-shrink-0 bg-gray-300"
+      className="flex items-center bg-gray-200 p-2 mb-2 rounded-lg cursor-pointer"
+      onClick={() => alert(`Downloading ${archivo.name}`)} // Add your download logic here
     >
-      {/* {archivo} */}
-    </Card>
+      <img
+        src={placeholderFileImage}
+        alt="Archivo adjunto"
+        draggable="false"
+        style={{
+          width: '40px',
+          height: '40px',
+          objectFit: 'cover',
+          borderRadius: '8px',
+          userSelect: 'none',
+          pointerEvents: 'none',
+          marginRight: '10px',
+        }}
+      />
+      <div>
+        <p style={{ fontSize: '14px', margin: 0 }}>{archivo.name}</p>
+        <p style={{ fontSize: '12px', color: 'gray', margin: 0 }}>
+          {archivo.fileSize}
+        </p>
+      </div>
+    </div>
   );
 
   const renderMiembro = (miembro, index) => (
     <div key={index} className="flex flex-col items-center ">
-      <Avatar size={64} className="bg-gray-300" />
+      <Avatar size={64} className="bg-gray-300" src={placeholderUserImage} />
       <p>{miembro}</p>
     </div>
   );
@@ -55,10 +72,12 @@ const Proyecto = () => {
       {/* {referente} */}
     </Card>
   );
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const handleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
+
   const renderTag = (tag, index) => (
     <Tag key={index} color="blue">
       {tag}
@@ -67,7 +86,6 @@ const Proyecto = () => {
 
   return (
     <>
-      {/* <div className="w-full bg-black h-10"></div> */}
       <Modal open={isModalVisible} onCancel={handleModal} width={'80%'}>
         <UploadFile />
       </Modal>
@@ -77,20 +95,16 @@ const Proyecto = () => {
             <Title level={3} className="text-center lg:text-left">
               Nombre Proyecto
             </Title>
-            <p className="text-center lg:text-left">00/00/00</p>
+            <p className="text-center lg:text-left">16/06/2024</p>
             <Title level={4} className="mb-2 text-center lg:text-left">
               Imagen Opcional
             </Title>
             <div className="lg:w-[500px] h-[500px]">
-              {imageUrl ? (
-                <img
-                  src="path-to-image.jpg"
-                  alt="Imagen del proyecto"
-                  className="w-full h-full  bg-gray-300 rounded-lg"
-                />
-              ) : (
-                <Card className="w-full h-full bg-gray-300 rounded-lg"></Card>
-              )}
+              <img
+                src={placeholderProyectImage}
+                alt="Imagen del proyecto"
+                className="w-full h-full bg-gray-300 rounded-lg"
+              />
               <ScrollableContainer
                 items={tags}
                 renderItem={renderTag}
@@ -98,8 +112,8 @@ const Proyecto = () => {
               />
             </div>
           </div>
-          <div className="flex flex-col items-start ">
-            <div className="flex flex-row justify-start text-center">
+          <div className="flex flex-col items-start">
+            <div className="flex flex-row justify-start text-center mb-2">
               <Title level={4} className="text-center lg:text-left !m-0">
                 Archivos
               </Title>
@@ -109,44 +123,9 @@ const Proyecto = () => {
                 onClick={handleModal}
               />
             </div>
-            <ScrollableContainer
-              items={archivos}
-              renderItem={renderArchivo}
-              maxVisibleItems={3}
-            />
-            <Title level={4} className="mt-8 text-center lg:text-left">
-              Miembros
-            </Title>
-            <ScrollableContainer
-              items={miembros}
-              renderItem={renderMiembro}
-              maxVisibleItems={4}
-            />
-            <Title level={4} className="mt-8 text-center lg:text-left">
-              Referentes
-            </Title>
-            <ScrollableContainer
-              items={referentes}
-              renderItem={renderReferente}
-              maxVisibleItems={3}
-            />
-          </div>
-          <div className="flex flex-col items-start ">
-            <div className="flex flex-row justify-start text-center">
-              <Title level={4} className="text-center lg:text-left !m-0">
-                Archivos
-              </Title>
-              <PlusCircleOutlined
-                className="ml-2"
-                size={20}
-                onClick={handleModal}
-              />
+            <div className="w-full">
+              {archivos.map((archivo, index) => renderArchivo(archivo, index))}
             </div>
-            <ScrollableContainer
-              items={archivos}
-              renderItem={renderArchivo}
-              maxVisibleItems={3}
-            />
             <Title level={4} className="mt-8 text-center lg:text-left">
               Miembros
             </Title>
@@ -165,11 +144,10 @@ const Proyecto = () => {
             />
           </div>
         </div>
-        <div className="flex flex-col lg:flex-row  mb-8 w-full">
+        <div className="flex flex-col lg:flex-row mb-8 w-full">
           <div>
             <div className="flex flex-row justify-start text-center "></div>
           </div>
-          <div>Hola</div>
         </div>
       </Card>
     </>
