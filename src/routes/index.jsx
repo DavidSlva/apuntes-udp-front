@@ -10,6 +10,7 @@ import Proyecto from '../pages/Proyecto';
 import Subir from '../pages/Subir';
 import Referencia from '../pages/Referencia'
 import EmptyLayout from '../layouts/EmptyLayout';
+import ProyectoLayout from '../layouts/ProyectoLayout';
 
 const routes = [
   {
@@ -29,7 +30,7 @@ const routes = [
   },
   {
     path: '/Proyectos/:id/Proyecto',
-    layout: MainLayoutTop,
+    layout: ProyectoLayout,
     element: Proyecto,
   },
   {
