@@ -1,17 +1,24 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useState } from 'react';
 import { Form, Input, Button, Typography } from 'antd';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import backgroundImage from '../images/image-1@2x.png'; // Import the image
+import { useNavigate } from 'react-router-dom';
+import backgroundImage from '../images/image-1@2x.png';
+import { useAuth } from '../providers/authProvider';
 
 const { Title } = Typography;
 
 export const Login = ({ className, buttonText = 'Login' }) => {
+  const { login } = useAuth(); // Use the useAuth hook
   const navigate = useNavigate(); // Initialize useNavigate
+  const [error, setError] = useState(null); // State to handle errors
 
-  const onFinish = (values) => {
-    console.log('Success:', values);
-    navigate('/inicio'); // Redirect to another page using useNavigate
+  const onFinish = async (values) => {
+    try {
+      await login(values.email, values.password); // Use the login method from useAuth
+      navigate('/inicio'); // Redirect to another page using useNavigate
+    } catch (err) {
+      setError(err.message); // Set error message
+    }
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -20,7 +27,7 @@ export const Login = ({ className, buttonText = 'Login' }) => {
 
   return (
     <div
-      className="login-container  h-screen"
+      className="login-container h-screen"
       style={{
         ...styles.container,
         backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${backgroundImage})`,
@@ -39,8 +46,11 @@ export const Login = ({ className, buttonText = 'Login' }) => {
         >
           <Form.Item
             label="Mail UDP"
-            name="username"
-            rules={[{ required: true, message: 'Porfavor Ingrese su Correo' }]}
+            name="email"
+            rules={[
+              { required: true, message: 'Porfavor Ingrese su Correo' },
+              { type: 'email', message: 'Porfavor Ingrese un correo valido' },
+            ]}
           >
             <Input />
           </Form.Item>
@@ -54,6 +64,10 @@ export const Login = ({ className, buttonText = 'Login' }) => {
           >
             <Input.Password />
           </Form.Item>
+
+          {error && (
+            <p style={{ color: 'red' }}>{error}</p> // Display error message
+          )}
 
           <Form.Item>
             <Button
@@ -80,7 +94,7 @@ export const Login = ({ className, buttonText = 'Login' }) => {
 
 Login.propTypes = {
   className: PropTypes.string,
-  buttonText: 'Iniciar Sesión',
+  buttonText: PropTypes.string,
 };
 
 Login.defaultProps = {

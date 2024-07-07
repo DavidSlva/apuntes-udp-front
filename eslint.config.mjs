@@ -18,6 +18,8 @@ export default [
     plugins: { prettier: prettierPlugin },
     rules: {
       'prettier/prettier': 'error',
+      'react/prop-types': 'off',
+      'no-unused-vars': 'warn',
     },
   },
 ];

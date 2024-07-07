@@ -1,4 +1,4 @@
-import { Card, Table } from 'antd';
+import { Card, Skeleton, Table, Tag } from 'antd';
 import {
   SearchOutlined,
   FileAddOutlined,
@@ -16,9 +16,13 @@ import {
   Modal,
   Input,
 } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import project1Image from '../images/image.png';
 import { useNavigate } from 'react-router-dom';
+import { useProject } from '../providers/projectProvider';
+import Title from 'antd/es/typography/Title';
+import { useTags } from '../providers/tagsProvider';
+import AddProjectForm from '../forms/AddProjectForm';
 
 const projects = [
   { id: 1, title: 'Proyecto 1', image: project1Image },
@@ -53,18 +57,40 @@ const projects = [
 const Proyectos = () => {
   const [position, setPosition] = useState('end');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const { getProjects, hasCalled, isLoading, error, data, addProject } =
+    useProject();
+  const {
+    getTags,
+    hasCalled: hasCalledTags,
+    isLoading: isLoadingTags,
+    error: errorTags,
+    data: dataTags,
+  } = useTags();
+  useEffect(() => {
+    if (!hasCalled) getProjects();
+  }, [hasCalled]);
 
   const showModal = () => {
     setIsModalVisible(true);
-  };
-  const handleOk = () => {
-    setIsModalVisible(false);
   };
   const handleCancel = () => {
     setIsModalVisible(false);
   };
   const navigate = useNavigate(); // Initialize useNavigate
-
+  const submitProject = async (values) => {
+    try {
+      const result = await addProject(values);
+      if (result.error) return result;
+      else {
+        getProjects();
+        setIsModalVisible(false);
+      }
+      return result;
+    } catch (error) {
+      console.log(error);
+      return { error };
+    }
+  };
   return (
     <div>
       <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
@@ -77,38 +103,6 @@ const Proyectos = () => {
               iconPosition={position}
               shape="round"
             ></Button>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={6} style={{ textAlign: 'center' }}>
-            <Button
-              disabled
-              style={{
-                border: '1px solid #d9d9d9',
-                backgroundColor: '#f5f5f5',
-                color: '#999',
-                cursor: 'not-allowed',
-                height: '40px',
-                fontSize: '18px',
-              }}
-              shape="round"
-            >
-              #Arquitectura
-            </Button>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={6} style={{ textAlign: 'center' }}>
-            <Button
-              disabled
-              style={{
-                border: '1px solid #d9d9d9',
-                backgroundColor: '#f5f5f5',
-                color: '#999',
-                cursor: 'not-allowed',
-                height: '40px',
-                fontSize: '18px',
-              }}
-              shape="round"
-            >
-              #Infraestructura
-            </Button>
           </Col>
         </Row>
       </div>
@@ -130,91 +124,50 @@ const Proyectos = () => {
         style={{ marginTop: '200px' }}
         visible={isModalVisible}
         footer={null}
+        title="Crear un nuevo proyecto"
         onCancel={handleCancel}
       >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-          }}
-        >
-          <Input
-            shape="round"
-            placeholder="Nombre del Proyecto"
-            style={{
-              marginBottom: '5px',
-              width: '300px',
-              borderRadius: '25px',
-              height: '40px',
-            }}
-          />
-          <Button
-            shape="round"
-            type="primary"
-            icon={<FileImageOutlined />}
-            iconPosition={position}
-            onClick={showModal}
-            style={{ width: '300px', height: '40px', fontSize: '18px' }}
-          >
-            Imagen de previsualización
-          </Button>
-          <Button
-            shape="round"
-            type="primary"
-            icon={<FileAddOutlined />}
-            iconPosition={position}
-            onClick={showModal}
-            style={{
-              width: '250px',
-              height: '40px',
-              fontSize: '18px',
-              marginTop: '20px',
-            }}
-          >
-            Crear Proyecto
-          </Button>
-        </div>
+        <AddProjectForm onSubmit={submitProject} />
       </Modal>
 
-      <Row justify="center" gutter={[16, 16]} style={{ marginTop: '20px' }}>
-        {projects.map((project) => (
-          <Col xs={24} sm={12} md={8} lg={6} key={project.id}>
-            <Card
-              onClick={() => navigate(`/Proyectos/${project.id}/Proyecto`)}
-              hoverable
-              cover={
-                <img
-                  alt={project.title}
-                  src={project.image}
-                  style={{
-                    backgroundColor: '#f5f5f5',
-                    height: '400px',
-                    objectFit: 'cover',
-                    width: '100%',
-                  }}
-                />
-              }
-            >
-              <Button disabled shape="round" style={{ marginBottom: '10px' }}>
-                #Arquitectura
-              </Button>
-              <Button disabled shape="round" style={{ marginLeft: '10px' }}>
-                #Infraestructura
-              </Button>
-              <Card.Meta
-                title={
-                  <div style={{ fontSize: '150%', marginTop: '10px' }}>
-                    {project.title}
-                  </div>
+      <Skeleton avatar paragraph={{ rows: 4 }} loading={isLoading}>
+        <Row justify="center" gutter={[16, 16]} style={{ marginTop: '20px' }}>
+          {data?.map((project) => (
+            <Col xs={24} sm={12} md={8} lg={6} key={project.id}>
+              <Card
+                onClick={() => navigate(`/Proyectos/${project.id}/Proyecto`)}
+                hoverable
+                className="!h-full"
+                cover={
+                  <img
+                    alt={project.title}
+                    src={project.image}
+                    style={{
+                      backgroundColor: '#f5f5f5',
+                      height: '400px',
+                      objectFit: 'cover',
+                      width: '100%',
+                    }}
+                  />
                 }
-              />
-            </Card>
-          </Col>
-        ))}
-      </Row>
+              >
+                <Card.Meta
+                  title={
+                    <Title level={3} className="!m-0 pb-4">
+                      {project.name}
+                    </Title>
+                  }
+                  description={project?.project_tags.map((projectTag) => (
+                    <Tag key={projectTag.id} color="blue">
+                      {projectTag?.tag?.name}
+                    </Tag>
+                  ))}
+                />
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </Skeleton>
     </div>
   );
 };
