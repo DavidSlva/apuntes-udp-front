@@ -1,3 +1,5 @@
+// src/routes.js
+import React from 'react';
 import MainLayout from '../layouts/MainLayout';
 import MainLayoutTop from '../layouts/MainLayoutTop';
 import Home from '../pages/Home';
@@ -10,57 +12,90 @@ import Proyecto from '../pages/Proyecto';
 import Subir from '../pages/Subir';
 import Referencia from '../pages/Referencia';
 import EmptyLayout from '../layouts/EmptyLayout';
+import PrivateRoute from '../components/PrivateRoute';
 
 const routes = [
   {
     path: '/',
     layout: EmptyLayout,
-    element: Login,
+    element: <Login />,
   },
   {
     path: '/usuarios',
     layout: MainLayoutTop,
-    element: Usuarios,
+    element: (
+      <PrivateRoute>
+        <Usuarios />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/Proyectos',
     layout: MainLayoutTop,
-    element: Proyectos,
+    element: (
+      <PrivateRoute>
+        <Proyectos />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/Proyectos/:id/Proyecto',
     layout: MainLayoutTop,
-    element: Proyecto,
+    element: (
+      <PrivateRoute>
+        <Proyecto />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/Miembros',
     layout: MainLayoutTop,
-    element: Miembros,
+    element: (
+      <PrivateRoute>
+        <Miembros />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/login',
     layout: EmptyLayout,
-    element: Login,
+    element: <Login />,
   },
   {
     path: '/inicio',
     layout: MainLayoutTop,
-    element: Inicio,
+    element: (
+      <PrivateRoute>
+        <Inicio />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/Subir',
     layout: MainLayoutTop,
-    element: Subir,
+    element: (
+      <PrivateRoute>
+        <Subir />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/referencia',
     layout: MainLayoutTop,
-    element: Referencia,
+    element: (
+      <PrivateRoute>
+        <Referencia />
+      </PrivateRoute>
+    ),
   },
   {
     path: '/Subir',
     layout: MainLayout,
-    element: Subir,
+    element: (
+      <PrivateRoute>
+        <Subir />
+      </PrivateRoute>
+    ),
   },
 ];
 
