@@ -1,6 +1,7 @@
 //Provider para manejar el estado del proyecto
 import React, { createContext, useCallback, useContext } from 'react';
 import useApiRequest from '../hooks/useApiRequest';
+import { API_URL } from '../config';
 
 const TagsContext = createContext(null);
 
@@ -8,7 +9,7 @@ const TagsContext = createContext(null);
 const TagsProvider = ({ children }) => {
   const { call, isLoading, hasCalled, error, response } = useApiRequest('GET');
   const getTags = useCallback(async () => {
-    await call('http://localhost:8000/api/v1/tags/');
+    await call(API_URL + '/tags/');
   }, [call]);
 
   return (

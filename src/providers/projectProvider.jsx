@@ -39,6 +39,17 @@ const ProjectProvider = ({ children }) => {
     },
     [callProject]
   );
+  const addFileProject = useCallback(async (data) => {
+    try {
+      return await apiRequest(API_URL + '/files/', 'POST', data);
+    } catch (error) {
+      notification.error({
+        message: 'Error al crear el archivo del proyecto',
+        description: error.message,
+      });
+      return { error };
+    }
+  }, []);
 
   return (
     <ProjectContext.Provider
@@ -54,6 +65,7 @@ const ProjectProvider = ({ children }) => {
         hasCalledProject,
         errorProject,
         project: responseProject,
+        addFileProject,
       }}
     >
       {children}

@@ -8,6 +8,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { API_URL, MEDIA_URL } from '../config';
 import Comments from '../components/Comments'; // Import the Comments component
+import AddFileForm from '../forms/AddFileForm';
 
 const { Title } = Typography;
 
@@ -23,7 +24,13 @@ const Proyecto = () => {
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const { getProject, project, isLoadingProject, errorProject } = useProject();
+  const {
+    getProject,
+    project,
+    isLoadingProject,
+    errorProject,
+    addFileProject,
+  } = useProject();
   console.log(project);
 
   useEffect(() => {
@@ -118,8 +125,11 @@ const Proyecto = () => {
 
   return (
     <>
-      <Modal open={isModalVisible} onCancel={handleModal} width={'80%'}>
-        <UploadFile />
+      <Modal open={isModalVisible} onCancel={handleModal}>
+        <AddFileForm
+          onSubmit={addFileProject}
+          initialValues={{ project: id }}
+        />
       </Modal>
       <div className="p-8">
         <div className="flex flex-col lg:flex-row justify-around mb-8 md:space-x-20">
