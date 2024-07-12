@@ -1,14 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Card, Divider, Modal, Tag, Typography, Button } from 'antd';
-import ScrollableContainer from '../components/ScrollableList';
+import {
+  Avatar,
+  Card,
+  Divider,
+  Modal,
+  Tag,
+  Typography,
+  Button,
+  Input,
+  message,
+} from 'antd';
 import { PlusCircleOutlined, DownloadOutlined } from '@ant-design/icons';
+import ScrollableContainer from '../components/ScrollableList';
 import UploadFile from '../components/UploadFile';
 import { useProject } from '../providers/projectProvider';
 import { useParams, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { API_URL, MEDIA_URL } from '../config';
-import Comments from '../components/Comments'; // Import the Comments component
+import Comments from '../components/Comments';
 import AddFileForm from '../forms/AddFileForm';
+import { useProjectMember } from '../providers/projectMemberProvider';
 
 const { Title } = Typography;
 
@@ -23,6 +34,7 @@ const Proyecto = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isAddMemberModalVisible, setIsAddMemberModalVisible] = useState(false);
 
   const {
     getProject,
@@ -31,9 +43,16 @@ const Proyecto = () => {
     errorProject,
     addFileProject,
   } = useProject();
-  console.log(project);
+  const { members, loading, error, fetchMembers, addMember, removeMember } =
+    useProjectMember(); // Usando el hook para acceder a las funciones y estado del provider
+  console.log('Members:', members, 'Loading:', loading, 'Error:', error);
+  useEffect(() => {
+    console.log('Effect to fetch members is running', id);
+    fetchMembers(id);
+  }, [id]);
 
   useEffect(() => {
+    console.log('Effect to fetch project is running', id);
     if (id) {
       getProject(id);
     } else {
@@ -136,6 +155,22 @@ const Proyecto = () => {
       return { error };
     }
   };
+  const handleSearchUser = async (userId) => {
+    try {
+      // Assuming that userId is the ID of the user to be added
+      const response = await addMember(id, userId);
+      if (!response.error) {
+        message.success('Miembro agregado con éxito');
+        getProject(id); // Update the project members list
+      } else {
+        message.error('Error al agregar miembro: ' + response.error);
+      }
+    } catch (error) {
+      message.error('Error al procesar la solicitud: ' + error.message);
+    } finally {
+      setIsAddMemberModalVisible(false); // Close the modal regardless of outcome
+    }
+  };
 
   return (
     <>
@@ -194,6 +229,14 @@ const Proyecto = () => {
               renderItem={renderMiembro}
               maxVisibleItems={4}
             />
+            <Button
+              type="primary"
+              icon={<PlusCircleOutlined />}
+              onClick={() => setIsAddMemberModalVisible(true)}
+              style={{ marginBottom: '16px', marginLeft: '10px' }}
+            >
+              Agregar Miembro
+            </Button>
             <Title level={4} className="mt-8 text-center lg:text-left">
               Referentes
             </Title>
@@ -210,6 +253,20 @@ const Proyecto = () => {
           </div>
         </div>
       </div>
+      <Modal
+        title="Agregar Miembro al Proyecto"
+        visible={isAddMemberModalVisible}
+        onCancel={() => setIsAddMemberModalVisible(false)}
+        footer={null}
+      >
+        <Input.Search
+          placeholder="Buscar usuario por nombre o ingresar correo electrónico"
+          enterButton="Buscar"
+          onSearch={handleSearchUser}
+          style={{ marginBottom: '20px' }}
+        />
+        {/* Opcional: Mostrar resultados de la búsqueda aquí y permitir agregar */}
+      </Modal>
     </>
   );
 };
