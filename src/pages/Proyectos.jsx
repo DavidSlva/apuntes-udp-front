@@ -23,36 +23,7 @@ import { useProject } from '../providers/projectProvider';
 import Title from 'antd/es/typography/Title';
 import { useTags } from '../providers/tagsProvider';
 import AddProjectForm from '../forms/AddProjectForm';
-
-const projects = [
-  { id: 1, title: 'Proyecto 1', image: project1Image },
-  { id: 2, title: 'Proyecto 2', image: project1Image },
-  { id: 3, title: 'Proyecto 3', image: project1Image },
-  { id: 4, title: 'Proyecto 4', image: project1Image },
-  { id: 5, title: 'Proyecto 5', image: project1Image },
-  { id: 6, title: 'Proyecto 6', image: project1Image },
-  { id: 7, title: 'Proyecto 7', image: project1Image },
-  { id: 8, title: 'Proyecto 8', image: project1Image },
-  { id: 9, title: 'Proyecto 9', image: project1Image },
-  { id: 10, title: 'Proyecto 10', image: project1Image },
-  { id: 11, title: 'Proyecto 11', image: project1Image },
-  { id: 12, title: 'Proyecto 12', image: project1Image },
-  { id: 13, title: 'Proyecto 13', image: project1Image },
-  { id: 14, title: 'Proyecto 14', image: project1Image },
-  { id: 15, title: 'Proyecto 15', image: project1Image },
-  { id: 16, title: 'Proyecto 16', image: project1Image },
-  { id: 17, title: 'Proyecto 17', image: project1Image },
-  { id: 18, title: 'Proyecto 18', image: project1Image },
-  { id: 19, title: 'Proyecto 19', image: project1Image },
-  { id: 20, title: 'Proyecto 20', image: project1Image },
-  { id: 21, title: 'Proyecto 21', image: project1Image },
-  { id: 22, title: 'Proyecto 22', image: project1Image },
-  { id: 23, title: 'Proyecto 23', image: project1Image },
-  { id: 24, title: 'Proyecto 24', image: project1Image },
-  { id: 25, title: 'Proyecto 25', image: project1Image },
-  { id: 26, title: 'Proyecto 26', image: project1Image },
-  { id: 27, title: 'Proyecto 27', image: project1Image },
-];
+import { MEDIA_URL } from '../config';
 
 const Proyectos = () => {
   const [position, setPosition] = useState('end');
@@ -91,6 +62,9 @@ const Proyectos = () => {
       return { error };
     }
   };
+
+  console.log(data);
+
   return (
     <div>
       <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
@@ -141,7 +115,7 @@ const Proyectos = () => {
                 cover={
                   <img
                     alt={project.title}
-                    src={project.image}
+                    src={`${MEDIA_URL}/${project?.portrait_file?.route}`}
                     style={{
                       backgroundColor: '#f5f5f5',
                       height: '400px',
