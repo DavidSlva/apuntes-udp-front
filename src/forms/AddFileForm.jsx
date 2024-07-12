@@ -1,10 +1,11 @@
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Form, Input, notification, Upload } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
 import { API_URL } from '../config';
 
 const AddFileForm = ({ onSubmit, initialValues }) => {
   const [api, contextHolder] = notification.useNotification();
+  const [loading, setLoading] = useState(false);
 
   const [form] = Form.useForm();
   const normFile = (e) => {
@@ -14,6 +15,7 @@ const AddFileForm = ({ onSubmit, initialValues }) => {
     return e?.fileList;
   };
   const onFinish = async (values) => {
+    setLoading(true);
     const { file } = values;
     const { id } = file[0].response;
     const response = await onSubmit({
@@ -27,6 +29,7 @@ const AddFileForm = ({ onSubmit, initialValues }) => {
     } else {
       form.resetFields();
     }
+    setLoading(false);
   };
   return (
     <Form
@@ -95,7 +98,7 @@ const AddFileForm = ({ onSubmit, initialValues }) => {
         </Upload>
       </Form.Item>
       <Form.Item>
-        <Button type="primary" htmlType="submit" block>
+        <Button type="primary" htmlType="submit" block loading={loading}>
           Guardar
         </Button>
       </Form.Item>

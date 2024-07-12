@@ -122,14 +122,25 @@ const Proyecto = () => {
   }
 
   const { archivos = [], miembros = [], referentes = [], tags = [] } = project;
+  const addFile = async (values) => {
+    try {
+      const result = await addFileProject(values);
+      if (result.error) return result;
+      else {
+        getProject(id);
+        setIsModalVisible(false);
+      }
+      return result;
+    } catch (error) {
+      console.log(error);
+      return { error };
+    }
+  };
 
   return (
     <>
-      <Modal open={isModalVisible} onCancel={handleModal}>
-        <AddFileForm
-          onSubmit={addFileProject}
-          initialValues={{ project: id }}
-        />
+      <Modal open={isModalVisible} onCancel={handleModal} footer={null}>
+        <AddFileForm onSubmit={addFile} initialValues={{ project: id }} />
       </Modal>
       <div className="p-8">
         <div className="flex flex-col lg:flex-row justify-around mb-8 md:space-x-20">

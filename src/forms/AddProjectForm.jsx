@@ -9,7 +9,6 @@ const AddProjectForm = ({ onSubmit }) => {
   const onFinish = async (values) => {
     const result = await onSubmit(values);
     if (result.error) {
-      console.log('entramos?');
       api.error({
         message: 'Error al crear el proyecto',
       });
