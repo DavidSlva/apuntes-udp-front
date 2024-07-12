@@ -57,14 +57,15 @@ const Proyecto = () => {
   const { currentUser, fetchUserData } = useAuth();
   console.log('Current user:', currentUser);
   console.log('Project:', project);
-  useEffect(() => {
-    fetchMembers(id);
-  }, [id]);
+  console.log('Project members:', members);
+
   useEffect(() => {
     if (project && project.owner) {
-      fetchUserById(project.owner); // Fetch owner details
+      fetchUserById(project.owner);
+      fetchMembers(id, project.owner);
     }
-  }, [project, fetchUserById]);
+    console.log('userDetails', userDetails);
+  }, [project, fetchUserById, fetchMembers, id]);
 
   useEffect(() => {
     if (id) {
@@ -119,25 +120,33 @@ const Proyecto = () => {
     </div>
   );
 
-  const renderMiembro = (memberId, index) => {
-    const user = userDetails[memberId];
-    const isOwner = project.owner === currentUser.id; // Assuming currentUser is the logged-in user's ID
+  const renderMiembro = (member, index) => {
+    const user = userDetails[member.user];
+    const isOwner = member.isOwner || project.owner === member.user;
+    const canRemove =
+      (project.owner === currentUser.id && member.user !== currentUser.id) ||
+      (member.user === currentUser.id && member.user !== project.owner);
 
     return (
-      <div key={index} className="member-container">
+      <div key={index} className={`member-container ${isOwner ? 'owner' : ''}`}>
         <Avatar
-          size={96}
+          size={64}
           src={user && user.avatarUrl ? user.avatarUrl : placeholderUserImage}
           className="avatar"
         />
         <div className="member-info">
-          <p>{user ? `${user.name} ${user.lastname}` : 'Loading...'}</p>
-          <p>{user ? user.email : 'Loading...'}</p>
-          {isOwner && (
-            <Button danger onClick={() => removeMember(project.id, memberId)}>
+          <p>{user ? `${user.name} ${user.lastname}` : 'Cargando...'}</p>
+          <p>{user ? user.email : 'Cargando...'}</p>
+          {canRemove && (
+            <Button
+              className="member-delete"
+              danger
+              onClick={() => removeMember(member.id)}
+            >
               Eliminar
             </Button>
           )}
+          <p className="owner-tag">Dueño</p>
         </div>
       </div>
     );
@@ -159,7 +168,7 @@ const Proyecto = () => {
   );
 
   if (isLoadingProject) {
-    return <p>Loading...</p>;
+    return <p>Cargando...</p>;
   }
 
   if (errorProject) {
@@ -185,13 +194,22 @@ const Proyecto = () => {
       return { error };
     }
   };
-  const handleSearchUser = async (userId) => {
+  const handleAddUser = async (userId) => {
+    if (
+      members.some(
+        (member) => member.user === userId || project.owner === userId
+      )
+    ) {
+      message.error('El usuario ya es miembro o el dueño del proyecto.');
+      return;
+    }
     try {
       // Assuming that userId is the ID of the user to be added
       const response = await addMember(id, userId);
       if (!response.error) {
         message.success('Miembro agregado con éxito');
         getProject(id); // Update the project members list
+        fetchMembers(id, project.owner);
       } else {
         message.error('Error al agregar miembro: ' + response.error);
       }
@@ -255,7 +273,7 @@ const Proyecto = () => {
               Miembros
             </Title>
             <ScrollableContainer
-              items={members.map((member) => member.user)}
+              items={members}
               renderItem={renderMiembro}
               maxVisibleItems={4}
             />
@@ -292,9 +310,9 @@ const Proyecto = () => {
         footer={null}
       >
         <Input.Search
-          placeholder="Buscar usuario por nombre o ingresar correo electrónico"
-          enterButton="Buscar"
-          onSearch={handleSearchUser}
+          placeholder="Ingresar correo electrónico"
+          enterButton="Agregar"
+          onSearch={handleAddUser}
           style={{ marginBottom: '20px' }}
         />
         {/* Opcional: Mostrar resultados de la búsqueda aquí y permitir agregar */}

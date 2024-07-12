@@ -3,6 +3,7 @@
   flex-direction: column;
   align-items: center;
   margin-bottom: 20px;
+  width: 140px; /* Set a fixed width for uniformity */
 }
 
 .member-info {
@@ -14,10 +15,25 @@
 
 .member-info p {
   margin: 2px 0; /* Reduce vertical spacing between name and email */
+  text-align: center; /* Ensure text is centered */
 }
 
 .avatar {
-  width: 96px;
-  height: 96px;
+  width: 64px;
+  height: 64px;
   background-color: #f0f0f0; /* Fallback color if image fails to load */
+}
+
+.owner-tag {
+  visibility: hidden; /* Hidden by default */
+}
+
+.member-container.owner .owner-tag {
+  margin-top: 8px;
+  visibility: visible; /* Visible when member is the owner */
+  font-weight: bold;
+}
+
+.member-delete {
+  margin-top: 8px;
 }

@@ -9,7 +9,7 @@ async function apiRequest(url, method, data = null, headers = {}) {
     method: method,
     headers: {
       'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }), // Agrega el token al encabezado si está presente
+      ...(token && { Authorization: `Bearer ${token}` }), // Add the token to the header if present
       ...headers,
     },
   };
@@ -35,11 +35,25 @@ async function apiRequest(url, method, data = null, headers = {}) {
         return { error: 'Token refresh failed. Please login again.' };
       }
     }
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.log(errorData);
-      return { error: errorData };
+
+    if (response.status === 204) {
+      return { status: response.status }; // Properly handle no content
     }
+
+    if (!response.ok) {
+      try {
+        const errorData = await response.json();
+        console.log('Server error data:', errorData);
+        return { error: errorData };
+      } catch (jsonError) {
+        console.error('Error parsing JSON from response:', jsonError);
+        return {
+          error: { message: 'Server returned non-JSON error response' },
+        };
+      }
+    }
+
+    // Parse the response as JSON only if the response is OK and not empty
     return await response.json();
   } catch (error) {
     console.error('API request error:', error);
