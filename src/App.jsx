@@ -7,6 +7,7 @@ import ProjectProvider from './providers/projectProvider';
 import TagsProvider from './providers/tagsProvider';
 import { AuthProvider } from './providers/authProvider';
 import { CommentProvider } from './providers/commentProvider';
+import { ProjectMemberProvider } from './providers/projectMemberProvider';
 
 function App() {
   return (
@@ -24,7 +25,9 @@ function App() {
                     <ProjectProvider>
                       <TagsProvider>
                         <CommentProvider>
-                          <route.layout>{route.element}</route.layout>{' '}
+                          <ProjectMemberProvider>
+                            <route.layout>{route.element}</route.layout>{' '}
+                          </ProjectMemberProvider>
                         </CommentProvider>
                       </TagsProvider>
                     </ProjectProvider>
