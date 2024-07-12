@@ -26,8 +26,31 @@ export const AuthProvider = ({ children }) => {
     const tokens = localStorage.getItem('authTokens');
     return tokens ? JSON.parse(tokens) : null;
   });
-
+  const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
+  const fetchUserData = useCallback(async () => {
+    if (!authTokens) return;
+    try {
+      const response = await fetch(`${API_URL}/users/me/`, {
+        headers: {
+          Authorization: `Bearer ${getSecureToken()}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('User data:', data);
+        setCurrentUser(data);
+      } else {
+        throw new Error('Unable to fetch user data.');
+      }
+    } catch (error) {
+      console.error('Fetch user data failed:', error);
+    }
+  }, [authTokens]);
+
+  useEffect(() => {
+    fetchUserData();
+  }, [authTokens]);
 
   // useEffect(() => {
   //   const tokens = localStorage.getItem('authTokens');
@@ -82,6 +105,7 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
       setAuthTokens(data);
       localStorage.setItem('authTokens', JSON.stringify(data));
+      await fetchUserData();
       return data;
     } else {
       const errorData = await response.json();
@@ -91,6 +115,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setAuthTokens(null);
+    setCurrentUser(null);
     localStorage.removeItem('authTokens');
     navigate('/login');
   };
@@ -108,6 +133,8 @@ export const AuthProvider = ({ children }) => {
     logout,
     getAuthToken,
     refreshToken,
+    fetchUserData,
+    currentUser,
   };
 
   return (

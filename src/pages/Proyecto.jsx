@@ -20,6 +20,7 @@ import { API_URL, MEDIA_URL } from '../config';
 import Comments from '../components/Comments';
 import AddFileForm from '../forms/AddFileForm';
 import { useProjectMember } from '../providers/projectMemberProvider';
+import { useAuth } from '../providers/authProvider';
 import './style.css';
 const { Title } = Typography;
 
@@ -53,10 +54,10 @@ const Proyecto = () => {
     removeMember,
     fetchUserById,
   } = useProjectMember(); // Usando el hook para acceder a las funciones y estado del provider
+  const { currentUser, fetchUserData } = useAuth();
+  console.log('Current user:', currentUser);
   console.log('Project:', project);
-  console.log('Members:', members, 'Loading:', loading, 'Error:', error);
   useEffect(() => {
-    console.log('Effect to fetch members is running', id);
     fetchMembers(id);
   }, [id]);
   useEffect(() => {
@@ -66,14 +67,12 @@ const Proyecto = () => {
   }, [project, fetchUserById]);
 
   useEffect(() => {
-    console.log('Effect to fetch project is running', id);
     if (id) {
       getProject(id);
     } else {
       navigate('/not-found');
     }
   }, [id]);
-  console.log('User details:', userDetails);
   const handleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
@@ -122,6 +121,8 @@ const Proyecto = () => {
 
   const renderMiembro = (memberId, index) => {
     const user = userDetails[memberId];
+    const isOwner = project.owner === currentUser.id; // Assuming currentUser is the logged-in user's ID
+
     return (
       <div key={index} className="member-container">
         <Avatar
@@ -132,6 +133,11 @@ const Proyecto = () => {
         <div className="member-info">
           <p>{user ? `${user.name} ${user.lastname}` : 'Loading...'}</p>
           <p>{user ? user.email : 'Loading...'}</p>
+          {isOwner && (
+            <Button danger onClick={() => removeMember(project.id, memberId)}>
+              Eliminar
+            </Button>
+          )}
         </div>
       </div>
     );
@@ -253,14 +259,16 @@ const Proyecto = () => {
               renderItem={renderMiembro}
               maxVisibleItems={4}
             />
-            <Button
-              type="primary"
-              icon={<PlusCircleOutlined />}
-              onClick={() => setIsAddMemberModalVisible(true)}
-              style={{ marginBottom: '16px', marginLeft: '10px' }}
-            >
-              Agregar Miembro
-            </Button>
+            {project.owner === currentUser.id && (
+              <Button
+                type="primary"
+                icon={<PlusCircleOutlined />}
+                onClick={() => setIsAddMemberModalVisible(true)}
+                style={{ marginBottom: '16px', marginLeft: '10px' }}
+              >
+                Agregar Miembro
+              </Button>
+            )}
             <Title level={4} className="mt-8 text-center lg:text-left">
               Referentes
             </Title>

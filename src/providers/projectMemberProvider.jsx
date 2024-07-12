@@ -15,9 +15,7 @@ export const ProjectMemberProvider = ({ children }) => {
   const [users, setUsers] = useState({});
 
   const fetchUserById = async (userId) => {
-    console.log('Fetching user details for user:', userId);
     if (userDetails[userId]) {
-      console.log('User data already fetched:', userDetails[userId]);
       return; // User data already fetched
     }
     try {
@@ -28,7 +26,6 @@ export const ProjectMemberProvider = ({ children }) => {
         { Authorization: `Bearer ${getAuthToken()}` }
       );
       if (response) {
-        console.log('Fetched user details:', response);
         setUserDetails((prev) => ({ ...prev, [userId]: response }));
       }
     } catch (error) {
@@ -48,7 +45,6 @@ export const ProjectMemberProvider = ({ children }) => {
       if (response && !response.error) {
         setMembers(response);
         response.forEach((member) => {
-          console.log('Fetching user details for member', member.user);
           fetchUserById(member.user); // Fetch details for each member
         });
       } else {
@@ -89,23 +85,23 @@ export const ProjectMemberProvider = ({ children }) => {
 
   const removeMember = async (projectId, memberId) => {
     setLoading(true);
-    setError(null);
     try {
+      console.log('Removing member', memberId, 'from project', projectId);
       const response = await apiRequest(
         `${API_URL}/projects/${projectId}/members/${memberId}/`,
         'DELETE',
         null,
-        {
-          Authorization: `Bearer ${getAuthToken()}`,
-        }
+        { Authorization: `Bearer ${getAuthToken()}` }
       );
-      if (!response.error) {
+      console.log('Remove member response:', response);
+      if (response.status === 204) {
         setMembers(members.filter((member) => member.id !== memberId));
+        message.success('Member removed successfully');
       } else {
-        setError(response.error);
+        message.error('Failed to remove member');
       }
     } catch (error) {
-      setError(error.message);
+      message.error('Error while removing member');
     } finally {
       setLoading(false);
     }
