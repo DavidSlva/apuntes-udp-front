@@ -11,31 +11,55 @@ export const ProjectMemberProvider = ({ children }) => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [userDetails, setUserDetails] = useState({});
+  const [users, setUsers] = useState({});
+
+  const fetchUserById = async (userId) => {
+    console.log('Fetching user details for user:', userId);
+    if (userDetails[userId]) {
+      console.log('User data already fetched:', userDetails[userId]);
+      return; // User data already fetched
+    }
+    try {
+      const response = await apiRequest(
+        `${API_URL}/users/${userId}/`,
+        'GET',
+        null,
+        { Authorization: `Bearer ${getAuthToken()}` }
+      );
+      if (response) {
+        console.log('Fetched user details:', response);
+        setUserDetails((prev) => ({ ...prev, [userId]: response }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch user details:', error);
+    }
+  };
 
   const fetchMembers = async (projectId) => {
     setLoading(true);
-    setError(null);
     try {
       const response = await apiRequest(
         `${API_URL}/projects/${projectId}/members/`,
         'GET',
         null,
-        {
-          Authorization: `Bearer ${getAuthToken()}`,
-        }
+        { Authorization: `Bearer ${getAuthToken()}` }
       );
-      if (!response.error) {
+      if (response && !response.error) {
         setMembers(response);
+        response.forEach((member) => {
+          console.log('Fetching user details for member', member.user);
+          fetchUserById(member.user); // Fetch details for each member
+        });
       } else {
         setError(response.error);
       }
     } catch (error) {
-      setError(error.message);
+      setError('Failed to load members');
     } finally {
       setLoading(false);
     }
   };
-
   const addMember = async (projectId, email) => {
     setLoading(true);
     setError(null);
@@ -91,9 +115,11 @@ export const ProjectMemberProvider = ({ children }) => {
     <ProjectMemberContext.Provider
       value={{
         members,
+        userDetails,
         loading,
-        error,
         fetchMembers,
+        fetchUserById,
+        error,
         addMember,
         removeMember,
       }}

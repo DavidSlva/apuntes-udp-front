@@ -1,0 +1,23 @@
+.member-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.member-info p {
+  margin: 2px 0; /* Reduce vertical spacing between name and email */
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  background-color: #f0f0f0; /* Fallback color if image fails to load */
+}

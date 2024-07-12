@@ -20,7 +20,7 @@ import { API_URL, MEDIA_URL } from '../config';
 import Comments from '../components/Comments';
 import AddFileForm from '../forms/AddFileForm';
 import { useProjectMember } from '../providers/projectMemberProvider';
-
+import './style.css';
 const { Title } = Typography;
 
 const placeholderUserImage =
@@ -43,13 +43,27 @@ const Proyecto = () => {
     errorProject,
     addFileProject,
   } = useProject();
-  const { members, loading, error, fetchMembers, addMember, removeMember } =
-    useProjectMember(); // Usando el hook para acceder a las funciones y estado del provider
+  const {
+    members,
+    loading,
+    error,
+    fetchMembers,
+    addMember,
+    userDetails,
+    removeMember,
+    fetchUserById,
+  } = useProjectMember(); // Usando el hook para acceder a las funciones y estado del provider
+  console.log('Project:', project);
   console.log('Members:', members, 'Loading:', loading, 'Error:', error);
   useEffect(() => {
     console.log('Effect to fetch members is running', id);
     fetchMembers(id);
   }, [id]);
+  useEffect(() => {
+    if (project && project.owner) {
+      fetchUserById(project.owner); // Fetch owner details
+    }
+  }, [project, fetchUserById]);
 
   useEffect(() => {
     console.log('Effect to fetch project is running', id);
@@ -59,7 +73,7 @@ const Proyecto = () => {
       navigate('/not-found');
     }
   }, [id]);
-
+  console.log('User details:', userDetails);
   const handleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
@@ -106,12 +120,22 @@ const Proyecto = () => {
     </div>
   );
 
-  const renderMiembro = (miembro, index) => (
-    <div key={index} className="flex flex-col items-center ">
-      <Avatar size={64} className="bg-gray-300" src={placeholderUserImage} />
-      <p>{miembro}</p>
-    </div>
-  );
+  const renderMiembro = (memberId, index) => {
+    const user = userDetails[memberId];
+    return (
+      <div key={index} className="member-container">
+        <Avatar
+          size={96}
+          src={user && user.avatarUrl ? user.avatarUrl : placeholderUserImage}
+          className="avatar"
+        />
+        <div className="member-info">
+          <p>{user ? `${user.name} ${user.lastname}` : 'Loading...'}</p>
+          <p>{user ? user.email : 'Loading...'}</p>
+        </div>
+      </div>
+    );
+  };
 
   const renderReferente = (referente, index) => (
     <Card
@@ -225,7 +249,7 @@ const Proyecto = () => {
               Miembros
             </Title>
             <ScrollableContainer
-              items={miembros}
+              items={members.map((member) => member.user)}
               renderItem={renderMiembro}
               maxVisibleItems={4}
             />
