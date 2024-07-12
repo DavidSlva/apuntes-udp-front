@@ -1,15 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Card, Divider, Modal, Tag, Typography, Button } from 'antd';
-import ScrollableContainer from '../components/ScrollableList';
+import {
+  Avatar,
+  Card,
+  Divider,
+  Modal,
+  Tag,
+  Typography,
+  Button,
+  Input,
+  message,
+} from 'antd';
 import { PlusCircleOutlined, DownloadOutlined } from '@ant-design/icons';
+import ScrollableContainer from '../components/ScrollableList';
 import UploadFile from '../components/UploadFile';
 import { useProject } from '../providers/projectProvider';
 import { useParams, useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { API_URL, MEDIA_URL } from '../config';
-import Comments from '../components/Comments'; // Import the Comments component
+import Comments from '../components/Comments';
 import AddFileForm from '../forms/AddFileForm';
-
+import { useProjectMember } from '../providers/projectMemberProvider';
+import { useAuth } from '../providers/authProvider';
+import './style.css';
 const { Title } = Typography;
 
 const placeholderUserImage =
@@ -23,6 +35,7 @@ const Proyecto = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isAddMemberModalVisible, setIsAddMemberModalVisible] = useState(false);
 
   const {
     getProject,
@@ -31,7 +44,28 @@ const Proyecto = () => {
     errorProject,
     addFileProject,
   } = useProject();
-  console.log(project);
+  const {
+    members,
+    loading,
+    error,
+    fetchMembers,
+    addMember,
+    userDetails,
+    removeMember,
+    fetchUserById,
+  } = useProjectMember(); // Usando el hook para acceder a las funciones y estado del provider
+  const { currentUser, fetchUserData } = useAuth();
+  console.log('Current user:', currentUser);
+  console.log('Project:', project);
+  console.log('Project members:', members);
+
+  useEffect(() => {
+    if (project && project.owner) {
+      fetchUserById(project.owner);
+      fetchMembers(id, project.owner);
+    }
+    console.log('userDetails', userDetails);
+  }, [project, fetchUserById, fetchMembers, id]);
 
   useEffect(() => {
     if (id) {
@@ -40,7 +74,6 @@ const Proyecto = () => {
       navigate('/not-found');
     }
   }, [id]);
-
   const handleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
@@ -87,12 +120,37 @@ const Proyecto = () => {
     </div>
   );
 
-  const renderMiembro = (miembro, index) => (
-    <div key={index} className="flex flex-col items-center ">
-      <Avatar size={64} className="bg-gray-300" src={placeholderUserImage} />
-      <p>{miembro}</p>
-    </div>
-  );
+  const renderMiembro = (member, index) => {
+    const user = userDetails[member.user];
+    const isOwner = member.isOwner || project.owner === member.user;
+    const canRemove =
+      (project.owner === currentUser.id && member.user !== currentUser.id) ||
+      (member.user === currentUser.id && member.user !== project.owner);
+
+    return (
+      <div key={index} className={`member-container ${isOwner ? 'owner' : ''}`}>
+        <Avatar
+          size={64}
+          src={user && user.avatarUrl ? user.avatarUrl : placeholderUserImage}
+          className="avatar"
+        />
+        <div className="member-info">
+          <p>{user ? `${user.name} ${user.lastname}` : 'Cargando...'}</p>
+          <p>{user ? user.email : 'Cargando...'}</p>
+          {canRemove && (
+            <Button
+              className="member-delete"
+              danger
+              onClick={() => removeMember(member.id)}
+            >
+              Eliminar
+            </Button>
+          )}
+          <p className="owner-tag">Dueño</p>
+        </div>
+      </div>
+    );
+  };
 
   const renderReferente = (referente, index) => (
     <Card
@@ -110,7 +168,7 @@ const Proyecto = () => {
   );
 
   if (isLoadingProject) {
-    return <p>Loading...</p>;
+    return <p>Cargando...</p>;
   }
 
   if (errorProject) {
@@ -134,6 +192,31 @@ const Proyecto = () => {
     } catch (error) {
       console.log(error);
       return { error };
+    }
+  };
+  const handleAddUser = async (userId) => {
+    if (
+      members.some(
+        (member) => member.user === userId || project.owner === userId
+      )
+    ) {
+      message.error('El usuario ya es miembro o el dueño del proyecto.');
+      return;
+    }
+    try {
+      // Assuming that userId is the ID of the user to be added
+      const response = await addMember(id, userId);
+      if (!response.error) {
+        message.success('Miembro agregado con éxito');
+        getProject(id); // Update the project members list
+        fetchMembers(id, project.owner);
+      } else {
+        message.error('Error al agregar miembro: ' + response.error);
+      }
+    } catch (error) {
+      message.error('Error al procesar la solicitud: ' + error.message);
+    } finally {
+      setIsAddMemberModalVisible(false); // Close the modal regardless of outcome
     }
   };
 
@@ -190,10 +273,20 @@ const Proyecto = () => {
               Miembros
             </Title>
             <ScrollableContainer
-              items={miembros}
+              items={members}
               renderItem={renderMiembro}
               maxVisibleItems={4}
             />
+            {project.owner === currentUser.id && (
+              <Button
+                type="primary"
+                icon={<PlusCircleOutlined />}
+                onClick={() => setIsAddMemberModalVisible(true)}
+                style={{ marginBottom: '16px', marginLeft: '10px' }}
+              >
+                Agregar Miembro
+              </Button>
+            )}
             <Title level={4} className="mt-8 text-center lg:text-left">
               Referentes
             </Title>
@@ -210,6 +303,20 @@ const Proyecto = () => {
           </div>
         </div>
       </div>
+      <Modal
+        title="Agregar Miembro al Proyecto"
+        visible={isAddMemberModalVisible}
+        onCancel={() => setIsAddMemberModalVisible(false)}
+        footer={null}
+      >
+        <Input.Search
+          placeholder="Ingresar correo electrónico"
+          enterButton="Agregar"
+          onSearch={handleAddUser}
+          style={{ marginBottom: '20px' }}
+        />
+        {/* Opcional: Mostrar resultados de la búsqueda aquí y permitir agregar */}
+      </Modal>
     </>
   );
 };
