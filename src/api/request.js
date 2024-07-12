@@ -1,6 +1,5 @@
 import { getSecureToken, secureLogout } from '../providers/authProvider';
-import { API_URL } from '../config';
-import { refreshAccessToken, logout } from '../providers/authProvider';
+import { refreshAccessToken } from '../providers/authProvider';
 
 async function apiRequest(url, method, data = null, headers = {}) {
   const token = getSecureToken();
