@@ -50,7 +50,31 @@ const ProjectProvider = ({ children }) => {
       return { error };
     }
   }, []);
-
+  const updateProject = useCallback(async (id, data) => {
+    try {
+      return await apiRequest(API_URL + `/projects/${id}/`, 'PUT', data);
+    } catch (error) {
+      notification.error({
+        message: 'Error al actualizar el proyecto',
+        description: error.message,
+      });
+      return { error };
+    }
+  }, []);
+  const deleteProject = useCallback(async (id) => {
+    try {
+      await apiRequest(API_URL + `/projects/${id}/`, 'DELETE');
+      notification.success({
+        message: 'Proyecto eliminado con éxito',
+      });
+    } catch (error) {
+      notification.error({
+        message: 'Error al eliminar el proyecto',
+        description: error.message,
+      });
+      return { error };
+    }
+  }, []);
   return (
     <ProjectContext.Provider
       value={{
@@ -66,6 +90,8 @@ const ProjectProvider = ({ children }) => {
         errorProject,
         project: responseProject,
         addFileProject,
+        updateProject,
+        deleteProject,
       }}
     >
       {children}

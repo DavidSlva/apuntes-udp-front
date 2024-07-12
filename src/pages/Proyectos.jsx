@@ -1,9 +1,7 @@
+// Proyectos.js
+import React, { useEffect, useState } from 'react';
 import { Card, Skeleton, Table, Tag } from 'antd';
-import {
-  SearchOutlined,
-  FileAddOutlined,
-  FileImageOutlined,
-} from '@ant-design/icons';
+import { SearchOutlined, FileAddOutlined } from '@ant-design/icons';
 import {
   Button,
   Divider,
@@ -16,8 +14,6 @@ import {
   Modal,
   Input,
 } from 'antd';
-import React, { useEffect, useState } from 'react';
-import project1Image from '../images/image.png';
 import { useNavigate } from 'react-router-dom';
 import { useProject } from '../providers/projectProvider';
 import Title from 'antd/es/typography/Title';
@@ -37,6 +33,7 @@ const Proyectos = () => {
     error: errorTags,
     data: dataTags,
   } = useTags();
+
   useEffect(() => {
     if (!hasCalled) getProjects();
   }, [hasCalled]);
@@ -44,10 +41,13 @@ const Proyectos = () => {
   const showModal = () => {
     setIsModalVisible(true);
   };
+
   const handleCancel = () => {
     setIsModalVisible(false);
   };
-  const navigate = useNavigate(); // Initialize useNavigate
+
+  const navigate = useNavigate();
+
   const submitProject = async (values) => {
     try {
       const result = await addProject(values);
@@ -62,8 +62,6 @@ const Proyectos = () => {
       return { error };
     }
   };
-
-  console.log(data);
 
   return (
     <div>
