@@ -19,6 +19,8 @@ import {
   ExclamationCircleOutlined,
   LoadingOutlined,
   FrownOutlined,
+  DeleteOutlined,
+  EyeOutlined,
 } from '@ant-design/icons';
 import ScrollableContainer from '../components/ScrollableList';
 import { useProject } from '../providers/projectProvider';
@@ -27,10 +29,12 @@ import moment from 'moment';
 import { MEDIA_URL } from '../config';
 import Comments from '../components/Comments';
 import AddFileForm from '../forms/AddFileForm';
+import AddReferenceForm from '../forms/AddReferenceForm';
 import { useProjectMember } from '../providers/projectMemberProvider';
 import { useAuth } from '../providers/authProvider';
 import UpdateProjectForm from '../forms/UpdateProjectForm';
 import './style.css';
+
 const { Title } = Typography;
 
 const placeholderUserImage =
@@ -46,6 +50,11 @@ const Proyecto = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAddMemberModalVisible, setIsAddMemberModalVisible] = useState(false);
   const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
+  const [isAddReferenceModalVisible, setIsAddReferenceModalVisible] =
+    useState(false);
+  const [isDeleteReferenceModalVisible, setIsDeleteReferenceModalVisible] =
+    useState(false);
+  const [referenceIdToDelete, setReferenceIdToDelete] = useState(null);
 
   const {
     getProject,
@@ -55,6 +64,8 @@ const Proyecto = () => {
     addFileProject,
     updateProject,
     deleteProject,
+    addReferenceProject,
+    deleteReference,
   } = useProject();
   const {
     members,
@@ -64,7 +75,7 @@ const Proyecto = () => {
     removeMember,
     fetchUserById,
   } = useProjectMember();
-  const { currentUser } = useAuth();
+  const { currentUser, fetchUserData } = useAuth();
 
   useEffect(() => {
     if (project && project?.owner) {
@@ -83,6 +94,29 @@ const Proyecto = () => {
 
   const handleModal = () => {
     setIsModalVisible(!isModalVisible);
+  };
+
+  const handleAddReferenceModal = () => {
+    setIsAddReferenceModalVisible(!isAddReferenceModalVisible);
+  };
+
+  const handleDeleteReferenceModal = (referenteId) => {
+    setReferenceIdToDelete(referenteId);
+    setIsDeleteReferenceModalVisible(true);
+  };
+
+  const handleCancelDeleteReference = () => {
+    setReferenceIdToDelete(null);
+    setIsDeleteReferenceModalVisible(false);
+  };
+
+  const handleConfirmDeleteReference = async () => {
+    if (referenceIdToDelete) {
+      await deleteReference(referenceIdToDelete);
+      getProject(id); // Actualizar el proyecto después de eliminar la referencia
+      setReferenceIdToDelete(null);
+      setIsDeleteReferenceModalVisible(false);
+    }
   };
 
   const handleDownload = (fileRoute) => {
@@ -130,6 +164,9 @@ const Proyecto = () => {
     } catch (error) {
       message.error('Error al procesar la solicitud: ' + error.message);
     }
+  };
+  const handleViewReference = (referenteId) => {
+    navigate(`/referencia/${referenteId}`);
   };
 
   const renderArchivo = (archivo, index) => (
@@ -200,9 +237,22 @@ const Proyecto = () => {
   const renderReferente = (referente, index) => (
     <Card
       key={index}
-      className="min-w-[120px] min-h-[120px] flex-shrink-0 bg-gray-300"
+      className="card-container min-w-[120px] min-h-[120px] flex-shrink-0 bg-gray-300 p-2 relative hover:shadow-lg"
     >
-      {/* {referente} */}
+      <div className="icon-container">
+        <EyeOutlined
+          className="text-blue-500 hover:text-blue-700 cursor-pointer"
+          onClick={() => handleViewReference(referente.id)}
+        />
+        <DeleteOutlined
+          className="text-red-500 hover:text-red-700 cursor-pointer"
+          onClick={() => handleDeleteReferenceModal(referente.id)}
+        />
+      </div>
+      <p>
+        <strong>{referente.description}</strong>
+      </p>
+      <p>{referente.author}</p>
     </Card>
   );
 
@@ -247,7 +297,7 @@ const Proyecto = () => {
     );
   }
 
-  const { archivos = [], miembros = [], referentes = [], tags = [] } = project;
+  const { archivos = [], miembros = [], references = [], tags = [] } = project;
   const addFile = async (values) => {
     try {
       const result = await addFileProject(values);
@@ -255,6 +305,21 @@ const Proyecto = () => {
       else {
         getProject(id);
         setIsModalVisible(false);
+      }
+      return result;
+    } catch (error) {
+      console.log(error);
+      return { error };
+    }
+  };
+
+  const addReference = async (values) => {
+    try {
+      const result = await addReferenceProject({ ...values, project_id: id });
+      if (result.error) return result;
+      else {
+        getProject(id);
+        setIsAddReferenceModalVisible(false);
       }
       return result;
     } catch (error) {
@@ -293,6 +358,24 @@ const Proyecto = () => {
     <>
       <Modal open={isModalVisible} onCancel={handleModal} footer={null}>
         <AddFileForm onSubmit={addFile} initialValues={{ project: id }} />
+      </Modal>
+      <Modal
+        open={isAddReferenceModalVisible}
+        onCancel={handleAddReferenceModal}
+        footer={null}
+      >
+        <AddReferenceForm
+          onSubmit={addReference}
+          initialValues={{ project: id }}
+        />
+      </Modal>
+      <Modal
+        title="Confirmar eliminación"
+        visible={isDeleteReferenceModalVisible}
+        onOk={handleConfirmDeleteReference}
+        onCancel={handleCancelDeleteReference}
+      >
+        <p>¿Estás seguro de que deseas eliminar esta referencia?</p>
       </Modal>
       <div className="p-8">
         <div className="flex flex-col lg:flex-row justify-around mb-8 md:space-x-20">
@@ -348,7 +431,7 @@ const Proyecto = () => {
                 className="w-full h-full bg-gray-300 rounded-lg"
               />
               <ScrollableContainer
-                items={project?.project_tags}
+                items={project?.project_tags || []}
                 renderItem={renderTag}
                 maxVisibleItems={5}
               />
@@ -374,7 +457,7 @@ const Proyecto = () => {
               Miembros
             </Title>
             <ScrollableContainer
-              items={members}
+              items={members || []}
               renderItem={renderMiembro}
               maxVisibleItems={4}
             />
@@ -388,11 +471,18 @@ const Proyecto = () => {
                 Agregar Miembro
               </Button>
             )}
-            <Title level={4} className="mt-8 text-center lg:text-left">
-              Referentes
-            </Title>
+            <div className="flex flex-row justify-start text-center mb-2">
+              <Title level={4} className="text-center lg:text-left mt-3">
+                Referentes
+              </Title>
+              <PlusCircleOutlined
+                className="ml-2"
+                size={20}
+                onClick={handleAddReferenceModal}
+              />
+            </div>
             <ScrollableContainer
-              items={referentes}
+              items={project.references || []}
               renderItem={renderReferente}
               maxVisibleItems={3}
             />
