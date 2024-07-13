@@ -1,25 +1,71 @@
-//Provider para manejar el estado del proyecto
-import React, { createContext, useCallback, useContext } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import useApiRequest from '../hooks/useApiRequest';
 import { API_URL } from '../config';
 
 const TagsContext = createContext(null);
 
-// eslint-disable-next-line react/prop-types
 const TagsProvider = ({ children }) => {
-  const { call, isLoading, hasCalled, error, response } = useApiRequest('GET');
+  const [tags, setTags] = useState(null);
+  const { call, isLoading, error, response } = useApiRequest('GET');
+
   const getTags = useCallback(async () => {
-    await call(API_URL + '/tags/');
-  }, [call]);
+    if (!tags) {
+      await call(API_URL + '/tags/');
+    }
+  }, [call, tags]);
+
+  useEffect(() => {
+    if (response) {
+      setTags(response);
+    }
+  }, [response]);
+
+  const addTag = useCallback(
+    async (data) => {
+      try {
+        const response = await call(API_URL + '/tags/', 'POST', data);
+        setTags((prevTags) => [...prevTags, response]);
+      } catch (err) {
+        throw err;
+      }
+    },
+    [call]
+  );
+
+  const deleteTag = useCallback(
+    async (id) => {
+      try {
+        await call(API_URL + `/tags/${id}/`, 'DELETE');
+        setTags((prevTags) => prevTags.filter((tag) => tag.id !== id));
+      } catch (err) {
+        throw err;
+      }
+    },
+    [call]
+  );
 
   return (
     <TagsContext.Provider
-      value={{ data: response, isLoading, hasCalled, error, getTags }}
+      value={{
+        data: tags,
+        isLoading,
+        error,
+        getTags,
+        addTag,
+        deleteTag,
+      }}
     >
       {children}
     </TagsContext.Provider>
   );
 };
+
 export const useTags = () => useContext(TagsContext);
 
 export default TagsProvider;

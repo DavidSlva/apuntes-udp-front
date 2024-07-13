@@ -75,6 +75,34 @@ const ProjectProvider = ({ children }) => {
       return { error };
     }
   }, []);
+
+  const addProjectTag = useCallback(async (data) => {
+    try {
+      return await apiRequest(API_URL + '/project-tags/', 'POST', data);
+    } catch (error) {
+      notification.error({
+        message: 'Error al agregar tag al proyecto',
+        description: error.message,
+      });
+      return { error };
+    }
+  }, []);
+
+  const deleteProjectTag = useCallback(async (id) => {
+    try {
+      await apiRequest(API_URL + `/project-tags/${id}/`, 'DELETE');
+      notification.success({
+        message: 'Tag del proyecto eliminado con éxito',
+      });
+    } catch (error) {
+      notification.error({
+        message: 'Error al eliminar el tag del proyecto',
+        description: error.message,
+      });
+      return { error };
+    }
+  }, []);
+
   return (
     <ProjectContext.Provider
       value={{
@@ -92,6 +120,8 @@ const ProjectProvider = ({ children }) => {
         addFileProject,
         updateProject,
         deleteProject,
+        addProjectTag,
+        deleteProjectTag,
       }}
     >
       {children}
