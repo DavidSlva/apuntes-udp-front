@@ -66,7 +66,7 @@ const routes = [
     layout: MainLayoutTop,
     element: (
       <PrivateRoute>
-        <Inicio />
+        <Proyectos />
       </PrivateRoute>
     ),
   },

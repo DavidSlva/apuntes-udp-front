@@ -214,11 +214,12 @@ const Proyecto = () => {
         message.error('Error al agregar miembro: ' + response.error);
       }
     } catch (error) {
-      message.error('Error al procesar la solicitud: ' + error.message);
+      // message.error('Error al procesar la solicitud: ' + error.message);
     } finally {
       setIsAddMemberModalVisible(false); // Close the modal regardless of outcome
     }
   };
+  console.log('Project:', project);
 
   return (
     <>
@@ -237,12 +238,12 @@ const Proyecto = () => {
             <p className="text-center lg:text-left">
               {project.description || 'Descripción del proyecto'}
             </p>
-            <Title level={4} className="mb-2 text-center lg:text-left">
-              Imagen Opcional
-            </Title>
             <div className="w-full lg:w-[500px] h-[500px]">
               <img
-                src={project.portrait || placeholderProyectImage}
+                src={
+                  `${MEDIA_URL}/${project?.portrait_file?.route}` ||
+                  placeholderProyectImage
+                }
                 alt="Imagen del proyecto"
                 className="w-full h-full bg-gray-300 rounded-lg"
               />

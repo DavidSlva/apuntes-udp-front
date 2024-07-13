@@ -87,17 +87,16 @@ export const ProjectMemberProvider = ({ children }) => {
         if (!response.error) {
           setMembers((prev) => [...prev, response]);
           fetchUserById(response.user); // Fetch details for the new member
-          message.success('Member added successfully');
+          message.success('Miembro añadido exitosamente');
         } else {
           setError(response.error);
           message.error(
-            'Failed to add member: ' +
-              (response.error.message || 'Unknown error')
+            'Error al añadir el miembro. El miembro no existe en Apuntes UDP'
           );
         }
       } catch (error) {
         setError('API request failed: ' + error.message);
-        message.error('API request failed: ' + error.message);
+        // message.error('API request failed: ' + error.message);
       } finally {
         setLoading(false);
       }
