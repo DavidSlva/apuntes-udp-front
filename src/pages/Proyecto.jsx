@@ -1,4 +1,3 @@
-// Proyecto.js
 import React, { useEffect, useState } from 'react';
 import {
   Avatar,
@@ -11,18 +10,21 @@ import {
   Input,
   message,
   Popconfirm,
+  Spin,
+  Result,
 } from 'antd';
 import {
   PlusCircleOutlined,
   DownloadOutlined,
   ExclamationCircleOutlined,
+  LoadingOutlined,
+  FrownOutlined,
 } from '@ant-design/icons';
 import ScrollableContainer from '../components/ScrollableList';
-import UploadFile from '../components/UploadFile';
 import { useProject } from '../providers/projectProvider';
 import { useParams, useNavigate } from 'react-router-dom';
 import moment from 'moment';
-import { API_URL, MEDIA_URL } from '../config';
+import { MEDIA_URL } from '../config';
 import Comments from '../components/Comments';
 import AddFileForm from '../forms/AddFileForm';
 import { useProjectMember } from '../providers/projectMemberProvider';
@@ -56,20 +58,18 @@ const Proyecto = () => {
   } = useProject();
   const {
     members,
-    loading,
-    error,
     fetchMembers,
     addMember,
     userDetails,
     removeMember,
     fetchUserById,
   } = useProjectMember();
-  const { currentUser, fetchUserData } = useAuth();
+  const { currentUser } = useAuth();
 
   useEffect(() => {
-    if (project && project.owner) {
-      fetchUserById(project.owner);
-      fetchMembers(id, project.owner);
+    if (project && project?.owner) {
+      fetchUserById(project?.owner);
+      fetchMembers(id, project?.owner);
     }
   }, [project, fetchUserById, fetchMembers, id]);
 
@@ -120,6 +120,7 @@ const Proyecto = () => {
   const confirmDelete = async () => {
     try {
       const result = await deleteProject(id);
+      console.log(result);
       if (!result.error) {
         message.success('Proyecto eliminado con éxito');
         navigate('/Proyectos');
@@ -166,10 +167,10 @@ const Proyecto = () => {
 
   const renderMiembro = (member, index) => {
     const user = userDetails[member.user];
-    const isOwner = member.isOwner || project.owner === member.user;
+    const isOwner = member.isOwner || project?.owner === member.user;
     const canRemove =
-      (project.owner === currentUser.id && member.user !== currentUser.id) ||
-      (member.user === currentUser.id && member.user !== project.owner);
+      (project?.owner === currentUser.id && member.user !== currentUser.id) ||
+      (member.user === currentUser.id && member.user !== project?.owner);
 
     return (
       <div key={index} className={`member-container ${isOwner ? 'owner' : ''}`}>
@@ -212,15 +213,38 @@ const Proyecto = () => {
   );
 
   if (isLoadingProject) {
-    return <p>Cargando...</p>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Spin
+          indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />}
+          tip="Cargando..."
+        />
+      </div>
+    );
   }
 
   if (errorProject) {
-    return <p>Error loading data: {errorProject?.message}</p>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Result
+          status="error"
+          title="Error al cargar los datos"
+          subTitle={errorProject?.message}
+        />
+      </div>
+    );
   }
 
-  if (!project) {
-    return <p>Project not found</p>;
+  if (!project || !project?.id) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Result
+          icon={<FrownOutlined />}
+          title="Proyecto no encontrado"
+          subTitle="El proyecto que buscas no existe."
+        />
+      </div>
+    );
   }
 
   const { archivos = [], miembros = [], referentes = [], tags = [] } = project;
@@ -242,7 +266,7 @@ const Proyecto = () => {
   const handleAddUser = async (userId) => {
     if (
       members.some(
-        (member) => member.user === userId || project.owner === userId
+        (member) => member.user === userId || project?.owner === userId
       )
     ) {
       message.error('El usuario ya es miembro o el dueño del proyecto.');
@@ -253,7 +277,7 @@ const Proyecto = () => {
       if (!response.error) {
         message.success('Miembro agregado con éxito');
         getProject(id);
-        fetchMembers(id, project.owner);
+        fetchMembers(id, project?.owner);
       } else {
         message.error('Error al agregar miembro: ' + response.error);
       }
@@ -273,7 +297,7 @@ const Proyecto = () => {
       <div className="p-8">
         <div className="flex flex-col lg:flex-row justify-around mb-8 md:space-x-20">
           <div className="flex flex-col items-center lg:items-start mb-8 lg:mb-0 w-full lg:w-auto">
-            {project.owner === currentUser.id && (
+            {project?.owner === currentUser.id && (
               <div
                 style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}
               >
@@ -317,7 +341,7 @@ const Proyecto = () => {
             <div className="w-full lg:w-[500px] h-[500px]">
               <img
                 src={
-                  `${MEDIA_URL}/${project.portrait_file?.route}` ||
+                  `${MEDIA_URL}/${project?.portrait_file?.route}` ||
                   placeholderProyectImage
                 }
                 alt="Imagen del proyecto"
@@ -375,13 +399,13 @@ const Proyecto = () => {
             <Title level={4} className="mt-8 text-center lg:text-left">
               Comentarios
             </Title>
-            <Comments projectId={project.id} />
+            <Comments projectId={project?.id} />
           </div>
         </div>
       </div>
       <Modal
         title="Agregar Miembro al Proyecto"
-        visible={isAddMemberModalVisible}
+        open={isAddMemberModalVisible}
         onCancel={() => setIsAddMemberModalVisible(false)}
         footer={null}
       >

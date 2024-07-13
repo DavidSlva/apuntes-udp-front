@@ -48,7 +48,7 @@ const ScrollableContainer = ({ items, renderItem, maxVisibleItems }) => {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
     >
-      {items.map((item, index) => renderItem(item, index))}
+      {items?.map((item, index) => renderItem(item, index))}
     </div>
   );
 };
