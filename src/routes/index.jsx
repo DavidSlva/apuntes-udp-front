@@ -89,6 +89,15 @@ const routes = [
     ),
   },
   {
+    path: '/referencia/:id',
+    layout: MainLayoutTop,
+    element: (
+      <PrivateRoute>
+        <Referencia />
+      </PrivateRoute>
+    ),
+  },
+  {
     path: '/Subir',
     layout: MainLayout,
     element: (

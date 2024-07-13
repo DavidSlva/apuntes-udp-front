@@ -37,3 +37,22 @@
 .member-delete {
   margin-top: 8px;
 }
+
+.card-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-container .icon-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.card-container:hover .icon-container {
+  opacity: 1;
+}
