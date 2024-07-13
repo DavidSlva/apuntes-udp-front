@@ -1,3 +1,4 @@
+// Proyecto.js
 import React, { useEffect, useState } from 'react';
 import {
   Avatar,
@@ -9,8 +10,13 @@ import {
   Button,
   Input,
   message,
+  Popconfirm,
 } from 'antd';
-import { PlusCircleOutlined, DownloadOutlined } from '@ant-design/icons';
+import {
+  PlusCircleOutlined,
+  DownloadOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons';
 import ScrollableContainer from '../components/ScrollableList';
 import UploadFile from '../components/UploadFile';
 import { useProject } from '../providers/projectProvider';
@@ -21,6 +27,7 @@ import Comments from '../components/Comments';
 import AddFileForm from '../forms/AddFileForm';
 import { useProjectMember } from '../providers/projectMemberProvider';
 import { useAuth } from '../providers/authProvider';
+import UpdateProjectForm from '../forms/UpdateProjectForm';
 import './style.css';
 const { Title } = Typography;
 
@@ -36,6 +43,7 @@ const Proyecto = () => {
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAddMemberModalVisible, setIsAddMemberModalVisible] = useState(false);
+  const [isUpdateModalVisible, setIsUpdateModalVisible] = useState(false);
 
   const {
     getProject,
@@ -43,6 +51,8 @@ const Proyecto = () => {
     isLoadingProject,
     errorProject,
     addFileProject,
+    updateProject,
+    deleteProject,
   } = useProject();
   const {
     members,
@@ -53,18 +63,14 @@ const Proyecto = () => {
     userDetails,
     removeMember,
     fetchUserById,
-  } = useProjectMember(); // Usando el hook para acceder a las funciones y estado del provider
+  } = useProjectMember();
   const { currentUser, fetchUserData } = useAuth();
-  console.log('Current user:', currentUser);
-  console.log('Project:', project);
-  console.log('Project members:', members);
 
   useEffect(() => {
     if (project && project.owner) {
       fetchUserById(project.owner);
       fetchMembers(id, project.owner);
     }
-    console.log('userDetails', userDetails);
   }, [project, fetchUserById, fetchMembers, id]);
 
   useEffect(() => {
@@ -74,6 +80,7 @@ const Proyecto = () => {
       navigate('/not-found');
     }
   }, [id]);
+
   const handleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
@@ -81,10 +88,47 @@ const Proyecto = () => {
   const handleDownload = (fileRoute) => {
     const link = document.createElement('a');
     link.href = `${MEDIA_URL}/${fileRoute}`;
-    link.setAttribute('download', ''); // Use 'download' attribute to prompt download
+    link.setAttribute('download', '');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const showUpdateModal = () => {
+    setIsUpdateModalVisible(true);
+  };
+
+  const handleUpdateCancel = () => {
+    setIsUpdateModalVisible(false);
+  };
+
+  const submitUpdateProject = async (values) => {
+    try {
+      const result = await updateProject(id, values);
+      if (result.error) return result;
+      else {
+        getProject(id);
+        setIsUpdateModalVisible(false);
+      }
+      return result;
+    } catch (error) {
+      console.log(error);
+      return { error };
+    }
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const result = await deleteProject(id);
+      if (!result.error) {
+        message.success('Proyecto eliminado con éxito');
+        navigate('/Proyectos');
+      } else {
+        message.error('Error al eliminar el proyecto: ' + result.error);
+      }
+    } catch (error) {
+      message.error('Error al procesar la solicitud: ' + error.message);
+    }
   };
 
   const renderArchivo = (archivo, index) => (
@@ -194,6 +238,7 @@ const Proyecto = () => {
       return { error };
     }
   };
+
   const handleAddUser = async (userId) => {
     if (
       members.some(
@@ -204,11 +249,10 @@ const Proyecto = () => {
       return;
     }
     try {
-      // Assuming that userId is the ID of the user to be added
       const response = await addMember(id, userId);
       if (!response.error) {
         message.success('Miembro agregado con éxito');
-        getProject(id); // Update the project members list
+        getProject(id);
         fetchMembers(id, project.owner);
       } else {
         message.error('Error al agregar miembro: ' + response.error);
@@ -216,7 +260,7 @@ const Proyecto = () => {
     } catch (error) {
       message.error('Error al procesar la solicitud: ' + error.message);
     } finally {
-      setIsAddMemberModalVisible(false); // Close the modal regardless of outcome
+      setIsAddMemberModalVisible(false);
     }
   };
 
@@ -228,6 +272,35 @@ const Proyecto = () => {
       <div className="p-8">
         <div className="flex flex-col lg:flex-row justify-around mb-8 md:space-x-20">
           <div className="flex flex-col items-center lg:items-start mb-8 lg:mb-0 w-full lg:w-auto">
+            {project.owner === currentUser.id && (
+              <div
+                style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}
+              >
+                <Button type="primary" onClick={showUpdateModal}>
+                  Editar Proyecto
+                </Button>
+                <Popconfirm
+                  title="¿Estás seguro de eliminar este proyecto?"
+                  onConfirm={confirmDelete}
+                  okText="Sí"
+                  cancelText="No"
+                  icon={<ExclamationCircleOutlined style={{ color: 'red' }} />}
+                >
+                  <Button
+                    type="primary"
+                    danger
+                    style={{
+                      backgroundColor: '#CC3C38',
+                      borderColor: '#CC3C38',
+                      color: 'white',
+                    }}
+                  >
+                    Eliminar Proyecto
+                  </Button>
+                </Popconfirm>
+              </div>
+            )}
+
             <Title level={3} className="text-center lg:text-left uppercase">
               {project.name || 'Nombre Proyecto'}
             </Title>
@@ -238,11 +311,14 @@ const Proyecto = () => {
               {project.description || 'Descripción del proyecto'}
             </p>
             <Title level={4} className="mb-2 text-center lg:text-left">
-              Imagen Opcional
+              Imagen
             </Title>
             <div className="w-full lg:w-[500px] h-[500px]">
               <img
-                src={project.portrait || placeholderProyectImage}
+                src={
+                  `${MEDIA_URL}/${project.portrait_file?.route}` ||
+                  placeholderProyectImage
+                }
                 alt="Imagen del proyecto"
                 className="w-full h-full bg-gray-300 rounded-lg"
               />
@@ -259,8 +335,8 @@ const Proyecto = () => {
                 Archivos
               </Title>
               <PlusCircleOutlined
-                className="ml-2"
-                size={20}
+                className="ml-2 mt-2"
+                size={40}
                 onClick={handleModal}
               />
             </div>
@@ -298,8 +374,7 @@ const Proyecto = () => {
             <Title level={4} className="mt-8 text-center lg:text-left">
               Comentarios
             </Title>
-            <Comments projectId={project.id} />{' '}
-            {/* Include Comments component */}
+            <Comments projectId={project.id} />
           </div>
         </div>
       </div>
@@ -315,7 +390,14 @@ const Proyecto = () => {
           onSearch={handleAddUser}
           style={{ marginBottom: '20px' }}
         />
-        {/* Opcional: Mostrar resultados de la búsqueda aquí y permitir agregar */}
+      </Modal>
+      <Modal
+        title="Editar Proyecto"
+        visible={isUpdateModalVisible}
+        footer={null}
+        onCancel={handleUpdateCancel}
+      >
+        <UpdateProjectForm project={project} onSubmit={submitUpdateProject} />
       </Modal>
     </>
   );
