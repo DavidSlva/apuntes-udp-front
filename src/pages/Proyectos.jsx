@@ -1,23 +1,8 @@
-import { Card, Skeleton, Table, Tag } from 'antd';
-import {
-  SearchOutlined,
-  FileAddOutlined,
-  FileImageOutlined,
-} from '@ant-design/icons';
-import {
-  Button,
-  Divider,
-  Flex,
-  Radio,
-  Space,
-  Tooltip,
-  Row,
-  Col,
-  Modal,
-  Input,
-} from 'antd';
+// Proyectos.js
 import React, { useEffect, useState } from 'react';
-import project1Image from '../images/image.png';
+import { Card, Skeleton, Tag } from 'antd';
+import { SearchOutlined, FileAddOutlined } from '@ant-design/icons';
+import { Button, Row, Col, Modal } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useProject } from '../providers/projectProvider';
 import Title from 'antd/es/typography/Title';
@@ -35,19 +20,31 @@ const Proyectos = () => {
     hasCalled: hasCalledTags,
     isLoading: isLoadingTags,
     error: errorTags,
-    data: dataTags,
+    data: tags,
   } = useTags();
+
+  useEffect(() => {
+    getTags();
+  }, [getTags]);
+
   useEffect(() => {
     if (!hasCalled) getProjects();
   }, [hasCalled]);
+  const getTagNameById = (id) => {
+    const tag = tags?.find((tag) => tag.id === id);
+    return tag ? tag.name : 'Unknown Tag';
+  };
 
   const showModal = () => {
     setIsModalVisible(true);
   };
+
   const handleCancel = () => {
     setIsModalVisible(false);
   };
-  const navigate = useNavigate(); // Initialize useNavigate
+
+  const navigate = useNavigate();
+
   const submitProject = async (values) => {
     try {
       const result = await addProject(values);
@@ -62,8 +59,6 @@ const Proyectos = () => {
       return { error };
     }
   };
-
-  console.log(data);
 
   return (
     <div>
@@ -88,7 +83,7 @@ const Proyectos = () => {
             icon={<FileAddOutlined />}
             iconPosition={position}
             onClick={showModal}
-            style={{ width: '300px', height: '40px', fontSize: '18px' }} // Ajusta el ancho según sea necesario
+            style={{ width: '300px', height: '40px', fontSize: '18px' }}
           >
             Crear un Nuevo Proyecto
           </Button>
@@ -131,9 +126,9 @@ const Proyectos = () => {
                       {project.name}
                     </Title>
                   }
-                  description={project?.project_tags.map((projectTag) => (
+                  description={project?.project_tags?.map((projectTag) => (
                     <Tag key={projectTag.id} color="blue">
-                      {projectTag?.tag?.name}
+                      {getTagNameById(projectTag.tag.id)}
                     </Tag>
                   ))}
                 />

@@ -1,51 +1,91 @@
 import { Button, Form, Input, notification, Upload, Select } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect, useState } from 'react';
-import { API_URL } from '../config';
+import { API_URL, MEDIA_URL } from '../config';
 import { PlusOutlined } from '@ant-design/icons';
 import { useTags } from '../providers/tagsProvider';
 import { useProject } from '../providers/projectProvider';
 
-const AddProjectForm = ({ onSubmit }) => {
+const UpdateProjectForm = ({ project, onSubmit }) => {
   const [form] = Form.useForm();
-  const { addProjectTag, deleteProjectTag } = useProject();
   const [api, contextHolder] = notification.useNotification();
-  const {
-    getTags,
-    data: tags,
-    isLoading: isLoadingTags,
-    error: errorTags,
-  } = useTags();
-  const [selectedTags, setSelectedTags] = useState([]);
+  const { getTags, data: tags } = useTags();
+  const { addProjectTag, deleteProjectTag } = useProject();
+  const [initialTags, setInitialTags] = useState([]);
+  const [currentTags, setCurrentTags] = useState([]);
 
   useEffect(() => {
     getTags();
-  }, [getTags]);
+    if (project && project.project_tags) {
+      const initialTagIds = project.project_tags.map((tag) => tag.tag.id);
+      setInitialTags(initialTagIds);
+      setCurrentTags(initialTagIds);
+    }
+  }, [project, getTags]);
+
+  useEffect(() => {
+    if (project) {
+      form.setFieldsValue({
+        name: project.name,
+        description: project.description,
+        portrait_file: project.portrait_file
+          ? [
+              {
+                uid: '-1',
+                name: 'portrait.png',
+                status: 'done',
+                url: `${MEDIA_URL}/${project.portrait_file.route}`,
+              },
+            ]
+          : [],
+        project_tags: initialTags,
+      });
+    }
+  }, [project, initialTags, form]);
 
   const handleTagsChange = (selectedTags) => {
-    setSelectedTags(selectedTags);
+    setCurrentTags(selectedTags);
   };
 
   const onFinish = async (values) => {
-    const { portrait_file } = values;
-    const { id } = portrait_file[0].response;
+    const { portrait_file, project_tags } = values;
+    const portrait_file_id =
+      portrait_file && portrait_file.length
+        ? portrait_file[0].response?.id || project.portrait_file.id
+        : null;
+
     const result = await onSubmit({
       ...values,
-      portrait_file: id,
+      portrait_file: portrait_file_id,
     });
 
     if (result.error) {
       api.error({
-        message: 'Error al crear el proyecto',
+        message: 'Error al actualizar el proyecto',
       });
     } else {
-      // Handle adding tags
-      for (const tagId of selectedTags) {
-        await addProjectTag({ project: result.id, tag: tagId });
+      // Handle adding and removing tags
+      const addedTags = currentTags.filter((tag) => !initialTags.includes(tag));
+      const removedTags = initialTags.filter(
+        (tag) => !currentTags.includes(tag)
+      );
+
+      for (const tagId of addedTags) {
+        await addProjectTag({ project: project.id, tag: tagId });
+      }
+      for (const tagId of removedTags) {
+        const projectTag = project.project_tags.find(
+          (pt) => pt.tag.id === tagId
+        );
+        if (projectTag) {
+          await deleteProjectTag(projectTag.id);
+        }
       }
 
-      console.log('Creado el proyecto');
+      console.log('Proyecto actualizado');
       form.resetFields();
+      // Refresh the initialTags and currentTags after updating
+      setInitialTags(currentTags);
     }
   };
 
@@ -94,13 +134,11 @@ const AddProjectForm = ({ onSubmit }) => {
           options={
             tags ? tags.map((tag) => ({ label: tag.name, value: tag.id })) : []
           }
-          loading={isLoadingTags}
           onChange={handleTagsChange}
         />
       </Form.Item>
 
       <Form.Item
-        rules={[{ required: true, message: 'Por favor, agregue un archivo.' }]}
         label="Portada"
         valuePropName="fileList"
         getValueFromEvent={normFile}
@@ -132,11 +170,11 @@ const AddProjectForm = ({ onSubmit }) => {
 
       <Form.Item>
         <Button type="primary" htmlType="submit" block>
-          Crear Proyecto
+          Actualizar Proyecto
         </Button>
       </Form.Item>
     </Form>
   );
 };
 
-export default AddProjectForm;
+export default UpdateProjectForm;
