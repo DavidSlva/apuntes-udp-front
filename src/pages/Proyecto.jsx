@@ -10,7 +10,7 @@ import {
   Input,
   message,
 } from 'antd';
-import { PlusCircleOutlined, DownloadOutlined } from '@ant-design/icons';
+import { PlusCircleOutlined, DownloadOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import ScrollableContainer from '../components/ScrollableList';
 import UploadFile from '../components/UploadFile';
 import { useProject } from '../providers/projectProvider';
@@ -19,9 +19,11 @@ import moment from 'moment';
 import { API_URL, MEDIA_URL } from '../config';
 import Comments from '../components/Comments';
 import AddFileForm from '../forms/AddFileForm';
+import AddReferenceForm from '../forms/AddReferenceForm';
 import { useProjectMember } from '../providers/projectMemberProvider';
 import { useAuth } from '../providers/authProvider';
 import './style.css';
+
 const { Title } = Typography;
 
 const placeholderUserImage =
@@ -36,6 +38,9 @@ const Proyecto = () => {
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isAddMemberModalVisible, setIsAddMemberModalVisible] = useState(false);
+  const [isAddReferenceModalVisible, setIsAddReferenceModalVisible] = useState(false);
+  const [isDeleteReferenceModalVisible, setIsDeleteReferenceModalVisible] = useState(false);
+  const [referenceIdToDelete, setReferenceIdToDelete] = useState(null);
 
   const {
     getProject,
@@ -43,6 +48,8 @@ const Proyecto = () => {
     isLoadingProject,
     errorProject,
     addFileProject,
+    addReferenceProject,
+    deleteReference,
   } = useProject();
   const {
     members,
@@ -53,7 +60,7 @@ const Proyecto = () => {
     userDetails,
     removeMember,
     fetchUserById,
-  } = useProjectMember(); // Usando el hook para acceder a las funciones y estado del provider
+  } = useProjectMember();
   const { currentUser, fetchUserData } = useAuth();
   console.log('Current user:', currentUser);
   console.log('Project:', project);
@@ -74,17 +81,45 @@ const Proyecto = () => {
       navigate('/not-found');
     }
   }, [id]);
+
   const handleModal = () => {
     setIsModalVisible(!isModalVisible);
+  };
+
+  const handleAddReferenceModal = () => {
+    setIsAddReferenceModalVisible(!isAddReferenceModalVisible);
+  };
+
+  const handleDeleteReferenceModal = (referenteId) => {
+    setReferenceIdToDelete(referenteId);
+    setIsDeleteReferenceModalVisible(true);
+  };
+
+  const handleCancelDeleteReference = () => {
+    setReferenceIdToDelete(null);
+    setIsDeleteReferenceModalVisible(false);
+  };
+
+  const handleConfirmDeleteReference = async () => {
+    if (referenceIdToDelete) {
+      await deleteReference(referenceIdToDelete);
+      getProject(id); // Actualizar el proyecto después de eliminar la referencia
+      setReferenceIdToDelete(null);
+      setIsDeleteReferenceModalVisible(false);
+    }
   };
 
   const handleDownload = (fileRoute) => {
     const link = document.createElement('a');
     link.href = `${MEDIA_URL}/${fileRoute}`;
-    link.setAttribute('download', ''); // Use 'download' attribute to prompt download
+    link.setAttribute('download', '');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleViewReference = (referenteId) => {
+    navigate(`/referencia/${referenteId}`);
   };
 
   const renderArchivo = (archivo, index) => (
@@ -153,11 +188,13 @@ const Proyecto = () => {
   };
 
   const renderReferente = (referente, index) => (
-    <Card
-      key={index}
-      className="min-w-[120px] min-h-[120px] flex-shrink-0 bg-gray-300"
-    >
-      {/* {referente} */}
+    <Card key={index} className="card-container min-w-[120px] min-h-[120px] flex-shrink-0 bg-gray-300 p-2 relative hover:shadow-lg">
+      <div className="icon-container">
+        <EyeOutlined className="text-blue-500 hover:text-blue-700 cursor-pointer" onClick={() => handleViewReference(referente.id)} />
+        <DeleteOutlined className="text-red-500 hover:text-red-700 cursor-pointer" onClick={() => handleDeleteReferenceModal(referente.id)} />
+      </div>
+      <p><strong>{referente.description}</strong></p>
+      <p>{referente.author}</p>
     </Card>
   );
 
@@ -172,14 +209,14 @@ const Proyecto = () => {
   }
 
   if (errorProject) {
-    return <p>Error loading data: {errorProject?.message}</p>;
+    return <p>Error al cargar el proyecto: {errorProject.message}</p>;
   }
 
   if (!project) {
-    return <p>Project not found</p>;
+    return <p>Proyecto no encontrado</p>;
   }
 
-  const { archivos = [], miembros = [], referentes = [], tags = [] } = project;
+  const { archivos = [], miembros = [], references = [], tags = [] } = project;
   const addFile = async (values) => {
     try {
       const result = await addFileProject(values);
@@ -194,6 +231,22 @@ const Proyecto = () => {
       return { error };
     }
   };
+
+  const addReference = async (values) => {
+    try {
+      const result = await addReferenceProject({ ...values, project_id: id });
+      if (result.error) return result;
+      else {
+        getProject(id);
+        setIsAddReferenceModalVisible(false);
+      }
+      return result;
+    } catch (error) {
+      console.log(error);
+      return { error };
+    }
+  };
+
   const handleAddUser = async (userId) => {
     if (
       members.some(
@@ -204,11 +257,10 @@ const Proyecto = () => {
       return;
     }
     try {
-      // Assuming that userId is the ID of the user to be added
       const response = await addMember(id, userId);
       if (!response.error) {
         message.success('Miembro agregado con éxito');
-        getProject(id); // Update the project members list
+        getProject(id);
         fetchMembers(id, project.owner);
       } else {
         message.error('Error al agregar miembro: ' + response.error);
@@ -216,7 +268,7 @@ const Proyecto = () => {
     } catch (error) {
       message.error('Error al procesar la solicitud: ' + error.message);
     } finally {
-      setIsAddMemberModalVisible(false); // Close the modal regardless of outcome
+      setIsAddMemberModalVisible(false);
     }
   };
 
@@ -224,6 +276,17 @@ const Proyecto = () => {
     <>
       <Modal open={isModalVisible} onCancel={handleModal} footer={null}>
         <AddFileForm onSubmit={addFile} initialValues={{ project: id }} />
+      </Modal>
+      <Modal open={isAddReferenceModalVisible} onCancel={handleAddReferenceModal} footer={null}>
+        <AddReferenceForm onSubmit={addReference} initialValues={{ project: id }} />
+      </Modal>
+      <Modal
+        title="Confirmar eliminación"
+        visible={isDeleteReferenceModalVisible}
+        onOk={handleConfirmDeleteReference}
+        onCancel={handleCancelDeleteReference}
+      >
+        <p>¿Estás seguro de que deseas eliminar esta referencia?</p>
       </Modal>
       <div className="p-8">
         <div className="flex flex-col lg:flex-row justify-around mb-8 md:space-x-20">
@@ -247,7 +310,7 @@ const Proyecto = () => {
                 className="w-full h-full bg-gray-300 rounded-lg"
               />
               <ScrollableContainer
-                items={project?.project_tags}
+                items={project?.project_tags || []}
                 renderItem={renderTag}
                 maxVisibleItems={5}
               />
@@ -273,7 +336,7 @@ const Proyecto = () => {
               Miembros
             </Title>
             <ScrollableContainer
-              items={members}
+              items={members || []}
               renderItem={renderMiembro}
               maxVisibleItems={4}
             />
@@ -287,19 +350,25 @@ const Proyecto = () => {
                 Agregar Miembro
               </Button>
             )}
-            <Title level={4} className="mt-8 text-center lg:text-left">
-              Referentes
-            </Title>
+            <div className="flex flex-row justify-start text-center mb-2">
+              <Title level={4} className="text-center lg:text-left mt-3">
+                Referentes
+              </Title>
+              <PlusCircleOutlined
+                className="ml-2"
+                size={20}
+                onClick={handleAddReferenceModal}
+              />
+            </div>
             <ScrollableContainer
-              items={referentes}
+              items={project.references || []}
               renderItem={renderReferente}
               maxVisibleItems={3}
             />
             <Title level={4} className="mt-8 text-center lg:text-left">
               Comentarios
             </Title>
-            <Comments projectId={project.id} />{' '}
-            {/* Include Comments component */}
+            <Comments projectId={project.id} />
           </div>
         </div>
       </div>
@@ -315,7 +384,6 @@ const Proyecto = () => {
           onSearch={handleAddUser}
           style={{ marginBottom: '20px' }}
         />
-        {/* Opcional: Mostrar resultados de la búsqueda aquí y permitir agregar */}
       </Modal>
     </>
   );

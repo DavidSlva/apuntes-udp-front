@@ -131,7 +131,7 @@ const Proyectos = () => {
                       {project.name}
                     </Title>
                   }
-                  description={project?.project_tags.map((projectTag) => (
+                  description={project?.project_tags?.map((projectTag) => (
                     <Tag key={projectTag.id} color="blue">
                       {projectTag?.tag?.name}
                     </Tag>

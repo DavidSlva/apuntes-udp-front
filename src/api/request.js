@@ -3,6 +3,7 @@ import { refreshAccessToken } from '../providers/authProvider';
 
 async function apiRequest(url, method, data = null, headers = {}) {
   const token = getSecureToken();
+  console.log('URL: ', url);
 
   const options = {
     method: method,

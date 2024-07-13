@@ -1,5 +1,5 @@
-//Provider para manejar el estado del proyecto
-import React, { createContext, useCallback, useContext } from 'react';
+// src/providers/projectProvider.jsx
+import React, { createContext, useCallback, useContext, useState } from 'react';
 import useApiRequest from '../hooks/useApiRequest';
 import { API_URL } from '../config';
 import apiRequest from '../api/request';
@@ -7,20 +7,36 @@ import { notification } from 'antd';
 
 const ProjectContext = createContext(null);
 
-// eslint-disable-next-line react/prop-types
 const ProjectProvider = ({ children }) => {
   const { call, isLoading, hasCalled, error, response } = useApiRequest('GET');
+  const { call: callPost, isLoading: isLoadingPost } = useApiRequest('POST');
+  const { call: callDelete } = useApiRequest('DELETE');
+  const [reference, setReference] = useState(null);
+  const [isLoadingReference, setIsLoadingReference] = useState(false);
+  const [errorReference, setErrorReference] = useState(null);
+
   const getProjects = useCallback(async () => {
     await call(API_URL + '/projects/');
   }, [call]);
 
-  const {
-    call: callProject,
-    isLoading: isLoadingProject,
-    hasCalled: hasCalledProject,
-    error: errorProject,
-    response: responseProject,
-  } = useApiRequest('GET');
+  const getProject = useCallback(async (id) => {
+    await call(API_URL + `/projects/${id}/`);
+  }, [call]);
+
+  const getReference = useCallback(async (id) => {
+    setIsLoadingReference(true);
+    setErrorReference(null);
+    try {
+      const response = await apiRequest(`${API_URL}/references/${id}/`, 'GET');
+      setReference(response);
+      setIsLoadingReference(false);
+      return response;
+    } catch (error) {
+      setErrorReference(error);
+      setIsLoadingReference(false);
+    }
+  }, []);
+
   const addProject = useCallback(async (data) => {
     try {
       return await apiRequest(API_URL + '/projects/', 'POST', data);
@@ -33,12 +49,6 @@ const ProjectProvider = ({ children }) => {
     }
   }, []);
 
-  const getProject = useCallback(
-    async (id) => {
-      await callProject(API_URL + `/projects/${id}/`);
-    },
-    [callProject]
-  );
   const addFileProject = useCallback(async (data) => {
     try {
       return await apiRequest(API_URL + '/files/', 'POST', data);
@@ -51,6 +61,33 @@ const ProjectProvider = ({ children }) => {
     }
   }, []);
 
+  const addReferenceProject = useCallback(async (data) => {
+    try {
+      return await apiRequest(API_URL + '/references/', 'POST', data);
+    } catch (error) {
+      notification.error({
+        message: 'Error al crear la referencia del proyecto',
+        description: error.message,
+      });
+      return { error };
+    }
+  }, []);
+
+  const deleteReference = useCallback(async (id) => {
+    try {
+      await callDelete(API_URL + `/references/${id}/`);
+      notification.success({
+        message: 'Referencia eliminada',
+        description: 'La referencia ha sido eliminada correctamente',
+      });
+    } catch (error) {
+      notification.error({
+        message: 'Error al eliminar la referencia',
+        description: error.message,
+      });
+    }
+  }, [callDelete]);
+
   return (
     <ProjectContext.Provider
       value={{
@@ -61,17 +98,24 @@ const ProjectProvider = ({ children }) => {
         getProjects,
         addProject,
         getProject,
-        isLoadingProject,
-        hasCalledProject,
-        errorProject,
-        project: responseProject,
+        isLoadingProject: isLoading,
+        hasCalledProject: hasCalled,
+        errorProject: error,
+        project: response,
         addFileProject,
+        addReferenceProject,
+        deleteReference,
+        getReference,
+        reference,
+        isLoadingReference,
+        errorReference,
       }}
     >
       {children}
     </ProjectContext.Provider>
   );
 };
+
 export const useProject = () => useContext(ProjectContext);
 
 export default ProjectProvider;
