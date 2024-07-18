@@ -36,14 +36,17 @@ const Referencia = () => {
           <div>
             <img className="w-full h-full" src={image} alt="Big Square" />
           </div>
-          <Title level={3}>{referenceData.description}</Title>
-          <Title level={5}>{referenceData.author}</Title>
+          {/* <Title level={3}>{referenceData.description}</Title> */}
+          {/* <Title level={5}>{referenceData.author}</Title> */}
         </Col>
         <Col xs={24} md={15}>
           <div>
-            <Title level={3}>Apuntes</Title>
+            <Title level={3}>Titulo: {referenceData.titulo}</Title>
             <Paragraph>
-              {referenceData.notes || 'No hay notas disponibles.'}
+              Author: {referenceData.autor || 'No hay autor disponible.'}
+              <br />
+              Descripcion: {referenceData.description || 'No hay notas disponibles.'}
+              
             </Paragraph>
           </div>
         </Col>
