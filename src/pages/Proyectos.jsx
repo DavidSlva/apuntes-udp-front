@@ -1,3 +1,4 @@
+// src/components/Proyectos.jsx
 import React, { useEffect, useState } from 'react';
 import { Card, Skeleton, Tag, Input, Space } from 'antd';
 import { SearchOutlined, FileAddOutlined } from '@ant-design/icons';
@@ -67,13 +68,15 @@ const Proyectos = () => {
     setSearchTerm(value.toLowerCase());
   };
 
-  const filteredData = data?.filter(
-    (project) =>
-      project.name.toLowerCase().includes(searchTerm) ||
-      project.project_tags.some((tag) =>
-        getTagNameById(tag.tag.id).toLowerCase().includes(searchTerm)
+  const filteredData = Array.isArray(data)
+    ? data.filter(
+        (project) =>
+          project.name.toLowerCase().includes(searchTerm) ||
+          project.project_tags.some((tag) =>
+            getTagNameById(tag.tag.id).toLowerCase().includes(searchTerm)
+          )
       )
-  );
+    : [];
 
   return (
     <div>

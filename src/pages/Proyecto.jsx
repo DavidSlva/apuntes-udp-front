@@ -33,6 +33,7 @@ import AddReferenceForm from '../forms/AddReferenceForm';
 import { useProjectMember } from '../providers/projectMemberProvider';
 import { useAuth } from '../providers/authProvider';
 import UpdateProjectForm from '../forms/UpdateProjectForm';
+import Proyectos from './Proyectos';
 import './style.css';
 
 const { Title } = Typography;
@@ -55,6 +56,7 @@ const Proyecto = () => {
   const [isDeleteReferenceModalVisible, setIsDeleteReferenceModalVisible] =
     useState(false);
   const [referenceIdToDelete, setReferenceIdToDelete] = useState(null);
+  const [isProjectDeleted, setIsProjectDeleted] = useState(false);
 
   const {
     getProject,
@@ -139,12 +141,12 @@ const Proyecto = () => {
   const submitUpdateProject = async (values) => {
     try {
       const result = await updateProject(id, values);
-      if (result.error) return result;
-      else {
+      if (result.error) {
+        throw new Error(result.error);
+      } else {
         getProject(id);
         setIsUpdateModalVisible(false);
       }
-      return result;
     } catch (error) {
       console.log(error);
       return { error };
@@ -154,17 +156,17 @@ const Proyecto = () => {
   const confirmDelete = async () => {
     try {
       const result = await deleteProject(id);
-      console.log(result);
-      if (!result.error) {
+      if (result && !result.error) {
         message.success('Proyecto eliminado con éxito');
-        navigate('/Proyectos');
+        setIsProjectDeleted(true);
       } else {
-        message.error('Error al eliminar el proyecto: ' + result.error);
+        throw new Error(result.error || 'Error desconocido');
       }
     } catch (error) {
       message.error('Error al procesar la solicitud: ' + error.message);
     }
   };
+
   const handleViewReference = (referenteId) => {
     navigate(`/referencia/${referenteId}`);
   };
@@ -301,12 +303,12 @@ const Proyecto = () => {
   const addFile = async (values) => {
     try {
       const result = await addFileProject(values);
-      if (result.error) return result;
-      else {
+      if (result.error) {
+        throw new Error(result.error);
+      } else {
         getProject(id);
         setIsModalVisible(false);
       }
-      return result;
     } catch (error) {
       console.log(error);
       return { error };
@@ -316,12 +318,12 @@ const Proyecto = () => {
   const addReference = async (values) => {
     try {
       const result = await addReferenceProject({ ...values, project_id: id });
-      if (result.error) return result;
-      else {
+      if (result.error) {
+        throw new Error(result.error);
+      } else {
         getProject(id);
         setIsAddReferenceModalVisible(false);
       }
-      return result;
     } catch (error) {
       console.log(error);
       return { error };
@@ -344,10 +346,10 @@ const Proyecto = () => {
         getProject(id);
         fetchMembers(id, project?.owner);
       } else {
-        message.error('Error al agregar miembro: ' + response.error);
+        throw new Error(response.error);
       }
     } catch (error) {
-      // message.error('Error al procesar la solicitud: ' + error.message);
+      message.error('Error al agregar miembro: ' + error.message);
     } finally {
       setIsAddMemberModalVisible(false);
     }
@@ -356,164 +358,170 @@ const Proyecto = () => {
 
   return (
     <>
-      <Modal open={isModalVisible} onCancel={handleModal} footer={null}>
-        <AddFileForm onSubmit={addFile} initialValues={{ project: id }} />
-      </Modal>
-      <Modal
-        open={isAddReferenceModalVisible}
-        onCancel={handleAddReferenceModal}
-        footer={null}
-      >
-        <AddReferenceForm
-          onSubmit={addReference}
-          initialValues={{ project: id }}
-        />
-      </Modal>
-      <Modal
-        title="Confirmar eliminación"
-        visible={isDeleteReferenceModalVisible}
-        onOk={handleConfirmDeleteReference}
-        onCancel={handleCancelDeleteReference}
-      >
-        <p>¿Estás seguro de que deseas eliminar esta referencia?</p>
-      </Modal>
-      <div className="p-8">
-        <div className="flex flex-col lg:flex-row justify-around mb-8 md:space-x-20">
-          <div className="flex flex-col items-center lg:items-start mb-8 lg:mb-0 w-full lg:w-auto">
-            {project?.owner === currentUser.id && (
-              <div
-                style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}
-              >
-                <Button type="primary" onClick={showUpdateModal}>
-                  Editar Proyecto
-                </Button>
-                <Popconfirm
-                  title="¿Estás seguro de eliminar este proyecto?"
-                  onConfirm={confirmDelete}
-                  okText="Sí"
-                  cancelText="No"
-                  icon={<ExclamationCircleOutlined style={{ color: 'red' }} />}
-                >
+      {isProjectDeleted ? (
+        <Proyectos />
+      ) : (
+        <>
+          <Modal open={isModalVisible} onCancel={handleModal} footer={null}>
+            <AddFileForm onSubmit={addFile} initialValues={{ project: id }} />
+          </Modal>
+          <Modal
+            open={isAddReferenceModalVisible}
+            onCancel={handleAddReferenceModal}
+            footer={null}
+          >
+            <AddReferenceForm
+              onSubmit={addReference}
+              initialValues={{ project: id }}
+            />
+          </Modal>
+          <Modal
+            title="Confirmar eliminación"
+            visible={isDeleteReferenceModalVisible}
+            onOk={handleConfirmDeleteReference}
+            onCancel={handleCancelDeleteReference}
+          >
+            <p>¿Estás seguro de que deseas eliminar esta referencia?</p>
+          </Modal>
+          <div className="p-8">
+            <div className="flex flex-col lg:flex-row justify-around mb-8 md:space-x-20">
+              <div className="flex flex-col items-center lg:items-start mb-8 lg:mb-0 w-full lg:w-auto">
+                {project?.owner === currentUser.id && (
+                  <div
+                    style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}
+                  >
+                    <Button type="primary" onClick={showUpdateModal}>
+                      Editar Proyecto
+                    </Button>
+                    <Popconfirm
+                      title="¿Estás seguro de eliminar este proyecto?"
+                      onConfirm={confirmDelete}
+                      okText="Sí"
+                      cancelText="No"
+                      icon={<ExclamationCircleOutlined style={{ color: 'red' }} />}
+                    >
+                      <Button
+                        type="primary"
+                        danger
+                        style={{
+                          backgroundColor: '#CC3C38',
+                          borderColor: '#CC3C38',
+                          color: 'white',
+                        }}
+                      >
+                        Eliminar Proyecto
+                      </Button>
+                    </Popconfirm>
+                  </div>
+                )}
+
+                <Title level={3} className="text-center lg:text-left uppercase">
+                  {project.name || 'Nombre Proyecto'}
+                </Title>
+                <p className="text-center lg:text-left">
+                  {moment(project.created_at).format('DD/MM/YYYY')}
+                </p>
+                <p className="text-center lg:text-left">
+                  {project.description || 'Descripción del proyecto'}
+                </p>
+                <Title level={4} className="mb-2 text-center lg:text-left">
+                  Imagen
+                </Title>
+                <div className="w-full lg:w-[500px] h-[500px]">
+                  <img
+                    src={
+                      `${MEDIA_URL}/${project?.portrait_file?.route}` ||
+                      placeholderProyectImage
+                    }
+                    alt="Imagen del proyecto"
+                    className="w-full h-full bg-gray-300 rounded-lg"
+                  />
+                  <ScrollableContainer
+                    items={project?.project_tags || []}
+                    renderItem={renderTag}
+                    maxVisibleItems={5}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col items-start !w-full lg:w-auto">
+                <div className="flex flex-row justify-start text-center mb-2">
+                  <Title level={4} className="text-center lg:text-left mt-3">
+                    Archivos
+                  </Title>
+                  <PlusCircleOutlined
+                    className="ml-2 mt-2"
+                    size={40}
+                    onClick={handleModal}
+                  />
+                </div>
+                <div className="w-full">
+                  {project?.project_files?.map((archivo, index) =>
+                    renderArchivo(archivo, index)
+                  )}
+                </div>
+                <Title level={4} className="mt-8 text-center lg:text-left">
+                  Miembros
+                </Title>
+                <ScrollableContainer
+                  items={members || []}
+                  renderItem={renderMiembro}
+                  maxVisibleItems={4}
+                />
+                {project.owner === currentUser.id && (
                   <Button
                     type="primary"
-                    danger
-                    style={{
-                      backgroundColor: '#CC3C38',
-                      borderColor: '#CC3C38',
-                      color: 'white',
-                    }}
+                    icon={<PlusCircleOutlined />}
+                    onClick={() => setIsAddMemberModalVisible(true)}
+                    style={{ marginBottom: '16px', marginLeft: '10px' }}
                   >
-                    Eliminar Proyecto
+                    Agregar Miembro
                   </Button>
-                </Popconfirm>
+                )}
+                <div className="flex flex-row justify-start text-center mb-2">
+                  <Title level={4} className="text-center lg:text-left mt-3">
+                    Referentes
+                  </Title>
+                  <PlusCircleOutlined
+                    className="ml-2"
+                    size={20}
+                    onClick={handleAddReferenceModal}
+                  />
+                </div>
+                <ScrollableContainer
+                  items={project.references || []}
+                  renderItem={renderReferente}
+                  maxVisibleItems={3}
+                />
+                <Title level={4} className="mt-8 text-center lg:text-left">
+                  Comentarios
+                </Title>
+                <Comments projectId={project?.id} />
               </div>
-            )}
-
-            <Title level={3} className="text-center lg:text-left uppercase">
-              {project.name || 'Nombre Proyecto'}
-            </Title>
-            <p className="text-center lg:text-left">
-              {moment(project.created_at).format('DD/MM/YYYY')}
-            </p>
-            <p className="text-center lg:text-left">
-              {project.description || 'Descripción del proyecto'}
-            </p>
-            <Title level={4} className="mb-2 text-center lg:text-left">
-              Imagen
-            </Title>
-            <div className="w-full lg:w-[500px] h-[500px]">
-              <img
-                src={
-                  `${MEDIA_URL}/${project?.portrait_file?.route}` ||
-                  placeholderProyectImage
-                }
-                alt="Imagen del proyecto"
-                className="w-full h-full bg-gray-300 rounded-lg"
-              />
-              <ScrollableContainer
-                items={project?.project_tags || []}
-                renderItem={renderTag}
-                maxVisibleItems={5}
-              />
             </div>
           </div>
-          <div className="flex flex-col items-start !w-full lg:w-auto">
-            <div className="flex flex-row justify-start text-center mb-2">
-              <Title level={4} className="text-center lg:text-left mt-3">
-                Archivos
-              </Title>
-              <PlusCircleOutlined
-                className="ml-2 mt-2"
-                size={40}
-                onClick={handleModal}
-              />
-            </div>
-            <div className="w-full">
-              {project?.project_files?.map((archivo, index) =>
-                renderArchivo(archivo, index)
-              )}
-            </div>
-            <Title level={4} className="mt-8 text-center lg:text-left">
-              Miembros
-            </Title>
-            <ScrollableContainer
-              items={members || []}
-              renderItem={renderMiembro}
-              maxVisibleItems={4}
+          <Modal
+            title="Agregar Miembro al Proyecto"
+            open={isAddMemberModalVisible}
+            onCancel={() => setIsAddMemberModalVisible(false)}
+            footer={null}
+          >
+            <Input.Search
+              placeholder="Ingresar correo electrónico"
+              enterButton="Agregar"
+              onSearch={handleAddUser}
+              style={{ marginBottom: '20px' }}
             />
-            {project.owner === currentUser.id && (
-              <Button
-                type="primary"
-                icon={<PlusCircleOutlined />}
-                onClick={() => setIsAddMemberModalVisible(true)}
-                style={{ marginBottom: '16px', marginLeft: '10px' }}
-              >
-                Agregar Miembro
-              </Button>
-            )}
-            <div className="flex flex-row justify-start text-center mb-2">
-              <Title level={4} className="text-center lg:text-left mt-3">
-                Referentes
-              </Title>
-              <PlusCircleOutlined
-                className="ml-2"
-                size={20}
-                onClick={handleAddReferenceModal}
-              />
-            </div>
-            <ScrollableContainer
-              items={project.references || []}
-              renderItem={renderReferente}
-              maxVisibleItems={3}
-            />
-            <Title level={4} className="mt-8 text-center lg:text-left">
-              Comentarios
-            </Title>
-            <Comments projectId={project?.id} />
-          </div>
-        </div>
-      </div>
-      <Modal
-        title="Agregar Miembro al Proyecto"
-        open={isAddMemberModalVisible}
-        onCancel={() => setIsAddMemberModalVisible(false)}
-        footer={null}
-      >
-        <Input.Search
-          placeholder="Ingresar correo electrónico"
-          enterButton="Agregar"
-          onSearch={handleAddUser}
-          style={{ marginBottom: '20px' }}
-        />
-      </Modal>
-      <Modal
-        title="Editar Proyecto"
-        visible={isUpdateModalVisible}
-        footer={null}
-        onCancel={handleUpdateCancel}
-      >
-        <UpdateProjectForm project={project} onSubmit={submitUpdateProject} />
-      </Modal>
+          </Modal>
+          <Modal
+            title="Editar Proyecto"
+            visible={isUpdateModalVisible}
+            footer={null}
+            onCancel={handleUpdateCancel}
+          >
+            <UpdateProjectForm project={project} onSubmit={submitUpdateProject} />
+          </Modal>
+        </>
+      )}
     </>
   );
 };

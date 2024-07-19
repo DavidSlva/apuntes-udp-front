@@ -16,15 +16,26 @@ const ProjectProvider = ({ children }) => {
   const [errorReference, setErrorReference] = useState(null);
 
   const getProjects = useCallback(async () => {
-    await call(API_URL + '/projects/');
+    try {
+      await call(API_URL + '/projects/');
+    } catch (error) {
+      notification.error({
+        message: 'Error al cargar los proyectos',
+        description: error.message,
+      });
+    }
   }, [call]);
 
-  const getProject = useCallback(
-    async (id) => {
+  const getProject = useCallback(async (id) => {
+    try {
       await call(API_URL + `/projects/${id}/`);
-    },
-    [call]
-  );
+    } catch (error) {
+      notification.error({
+        message: 'Error al cargar el proyecto',
+        description: error.message,
+      });
+    }
+  }, [call]);
 
   const getReference = useCallback(async (id) => {
     setIsLoadingReference(true);
@@ -76,10 +87,11 @@ const ProjectProvider = ({ children }) => {
   }, []);
   const deleteProject = useCallback(async (id) => {
     try {
-      await apiRequest(API_URL + `/projects/${id}/`, 'DELETE');
+      await callDelete(API_URL + `/projects/${id}/`);
       notification.success({
         message: 'Proyecto eliminado con éxito',
       });
+      return {};
     } catch (error) {
       notification.error({
         message: 'Error al eliminar el proyecto',
@@ -87,7 +99,7 @@ const ProjectProvider = ({ children }) => {
       });
       return { error };
     }
-  }, []);
+  }, [callDelete]);
 
   const addProjectTag = useCallback(async (data) => {
     try {
