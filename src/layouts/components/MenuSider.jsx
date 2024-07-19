@@ -10,26 +10,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 const items = [
   {
-    key: '1',
-    icon: <HomeOutlined />,
-    title: 'Home',
-    label: (
-      <>
-        <Link to={'/inicio'}>Inicio</Link>{' '}
-      </>
-    ),
-  },
-  // {
-  //   key: '2',
-  //   icon: <UserOutlined />,
-  //   title: 'Usuarios',
-  //   label: (
-  //     <>
-  //       <Link to={'/usuarios'}>Usuarios</Link>{' '}
-  //     </>
-  //   ),
-  // },
-  {
     key: '3',
     icon: <MenuOutlined />,
     title: 'Proyectos',
@@ -39,16 +19,7 @@ const items = [
       </>
     ),
   },
-  {
-    key: '4',
-    icon: <FileAddOutlined />,
-    title: 'Archivo Ex',
-    label: (
-      <>
-        <Link to={'/Subir'}>Archivo Ex</Link>{' '}
-      </>
-    ),
-  },
+
   {
     key: '5',
     icon: <FileAddOutlined />,

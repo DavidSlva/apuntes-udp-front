@@ -91,7 +91,7 @@ const Proyecto = () => {
       navigate('/not-found');
     }
   }, [id]);
-
+  console.log(project);
   const handleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
