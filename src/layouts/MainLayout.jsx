@@ -10,7 +10,7 @@ const MainLayout = ({ children }) => {
   // Obtener el nombre de la ruta actual
   const location = useLocation();
   const pageName = location.pathname.split('/')?.pop();
-  console.log(pageName);
+  console.log('pagina', pageName);
   return (
     <Layout className="min-h-screen">
       <Header className="fixed shadow-md z-50 w-full h-16 px-1 md:px-5">

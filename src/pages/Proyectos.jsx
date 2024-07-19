@@ -1,6 +1,5 @@
-// Proyectos.js
 import React, { useEffect, useState } from 'react';
-import { Card, Skeleton, Tag } from 'antd';
+import { Card, Skeleton, Tag, Input, Space } from 'antd';
 import { SearchOutlined, FileAddOutlined } from '@ant-design/icons';
 import { Button, Row, Col, Modal } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -10,9 +9,12 @@ import { useTags } from '../providers/tagsProvider';
 import AddProjectForm from '../forms/AddProjectForm';
 import { MEDIA_URL } from '../config';
 
+const { Search } = Input;
+
 const Proyectos = () => {
   const [position, setPosition] = useState('end');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const { getProjects, hasCalled, isLoading, error, data, addProject } =
     useProject();
   const {
@@ -29,7 +31,8 @@ const Proyectos = () => {
 
   useEffect(() => {
     if (!hasCalled) getProjects();
-  }, [hasCalled]);
+  }, [hasCalled, getProjects]);
+
   const getTagNameById = (id) => {
     const tag = tags?.find((tag) => tag.id === id);
     return tag ? tag.name : 'Unknown Tag';
@@ -60,6 +63,18 @@ const Proyectos = () => {
     }
   };
 
+  const handleSearch = (value) => {
+    setSearchTerm(value.toLowerCase());
+  };
+
+  const filteredData = data?.filter(
+    (project) =>
+      project.name.toLowerCase().includes(searchTerm) ||
+      project.project_tags.some((tag) =>
+        getTagNameById(tag.tag.id).toLowerCase().includes(searchTerm)
+      )
+  );
+
   return (
     <div>
       <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
@@ -71,22 +86,31 @@ const Proyectos = () => {
               icon={<SearchOutlined style={{ fontSize: '30px' }} />}
               iconPosition={position}
               shape="round"
+              onClick={console.log('CLIICK-CLICK')}
             ></Button>
           </Col>
         </Row>
       </div>
       <Row justify="center" style={{ marginTop: '20px' }}>
-        <Col span={24} style={{ textAlign: 'center' }}>
-          <Button
-            shape="round"
-            type="primary"
-            icon={<FileAddOutlined />}
-            iconPosition={position}
-            onClick={showModal}
-            style={{ width: '300px', height: '40px', fontSize: '18px' }}
-          >
-            Crear un Nuevo Proyecto
-          </Button>
+        <Col span={12} style={{ textAlign: 'center' }}>
+          <Space>
+            <Search
+              placeholder="Buscar proyectos"
+              enterButton
+              onSearch={handleSearch}
+              style={{ width: '300px' }}
+            />
+            <Button
+              shape="round"
+              type="primary"
+              icon={<FileAddOutlined />}
+              iconPosition={position}
+              onClick={showModal}
+              style={{ width: '300px', height: '40px', fontSize: '18px' }}
+            >
+              Crear un Nuevo Proyecto
+            </Button>
+          </Space>
         </Col>
       </Row>
       <Modal
@@ -101,7 +125,7 @@ const Proyectos = () => {
 
       <Skeleton avatar paragraph={{ rows: 4 }} loading={isLoading}>
         <Row justify="center" gutter={[16, 16]} style={{ marginTop: '20px' }}>
-          {data?.map((project) => (
+          {filteredData?.map((project) => (
             <Col xs={24} sm={12} md={8} lg={6} key={project.id}>
               <Card
                 onClick={() => navigate(`/Proyectos/${project.id}/Proyecto`)}
